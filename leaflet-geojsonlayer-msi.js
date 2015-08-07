@@ -27,10 +27,10 @@
             var that = this;
             var success = function (soapResponse) {
                 var jsonResponse = soapResponse.toJSON();
-                var activeWarnings = jsonResponse['Body']['getActiveWarningCountryResponse']['return']['item'];
+                var activeWarnings = jsonResponse.Body.getActiveWarningCountryResponse.return.item;
                 var geojson = {};
-                geojson['type'] = 'FeatureCollection';
-                geojson['features'] = [];
+                geojson.type = 'FeatureCollection';
+                geojson.features = [];
                 for (var k in activeWarnings) {
                     var item = activeWarnings[k];
                     var newFeature = {
@@ -52,21 +52,21 @@
                             "updated": item.updated,
                             "validFrom": item.validFrom
                         }
-                    }
-                    geojson['features'].push(newFeature);
+                    };
+                    geojson.features.push(newFeature);
                 }
                 var popup_template = '<div class="msi"><h4>{title}</h4><p>{body}</p><hr/><p>Created: {created}</p><p>Updated: {updated}</p><p>Valid from: {validFrom}</p><hr/><p>Main area: {areaEnglish}</p><p>Subarea: {subarea}</p><hr/><p>Longitude: {longitude}</p><p>Latitude: {latitude}</p></div>';
                 var lgeojson = L.geoJson(geojson, {
                     onEachFeature: function (feature, layer) {
                         var innerhtml = popup_template.replace('{title}', feature.properties.encText);
-                        var innerhtml = innerhtml.replace('{body}', feature.properties.navWarning);
-                        var innerhtml = innerhtml.replace('{created}', feature.properties.created);
-                        var innerhtml = innerhtml.replace('{updated}', feature.properties.updated);
-                        var innerhtml = innerhtml.replace('{validFrom}', feature.properties.validFrom);
-                        var innerhtml = innerhtml.replace('{areaEnglish}', feature.properties.areaEnglish);
-                        var innerhtml = innerhtml.replace('{subarea}', feature.properties.subarea);
-                        var innerhtml = innerhtml.replace('{longitude}', feature.geometry.coordinates[0]);
-                        var innerhtml = innerhtml.replace('{latitude}', feature.geometry.coordinates[1]);
+                        innerhtml = innerhtml.replace('{body}', feature.properties.navWarning);
+                        innerhtml = innerhtml.replace('{created}', feature.properties.created);
+                        innerhtml = innerhtml.replace('{updated}', feature.properties.updated);
+                        innerhtml = innerhtml.replace('{validFrom}', feature.properties.validFrom);
+                        innerhtml = innerhtml.replace('{areaEnglish}', feature.properties.areaEnglish);
+                        innerhtml = innerhtml.replace('{subarea}', feature.properties.subarea);
+                        innerhtml = innerhtml.replace('{longitude}', feature.geometry.coordinates[0]);
+                        innerhtml = innerhtml.replace('{latitude}', feature.geometry.coordinates[1]);
                         layer.bindPopup(innerhtml, {maxWidth: 350, maxHeight: 600});
                     },
                     /*jshint unused: true*/
@@ -84,8 +84,7 @@
                 });
                 that.addLayer(lgeojson);
                 L.GeoJSON.prototype.onAdd.call(that, map);
-            }
-
+            };
 
             // Make SOAP request
             var soapOptions = this.options.soap;
@@ -93,7 +92,7 @@
             soapOptions.error = function (soapResponse) {
                 // show error
                 console.log(soapResponse.toJSON());
-            }
+            };
             $.soap(soapOptions);
 
         },
