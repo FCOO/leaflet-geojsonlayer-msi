@@ -3,9 +3,9 @@
     'use strict';
     L.GeoJSON.MSI = L.GeoJSON.extend({
         options: {
+            language: 'da',
             soap: {
                 url: 'http://api.fcoo.dk/msi/ws/warning',
-                method: 'mes:getActiveWarningCountry',
                 appendMethodToURL: false,
                 soap12: false,
                 SOAPAction: "",
@@ -27,35 +27,73 @@
             var that = this;
             var success = function (soapResponse) {
                 var jsonResponse = soapResponse.toJSON();
-                var activeWarnings = jsonResponse.Body.getActiveWarningCountryResponse.return.item;
+                var method = 'getActiveWarningCountryResponse';
+                if (that.options.language == 'da') {
+                    method = 'getActiveWarningResponse';
+                }
+                var activeWarnings = jsonResponse.Body[method].return.item;
                 var geojson = {};
                 geojson.type = 'FeatureCollection';
                 geojson.features = [];
                 for (var k in activeWarnings) {
                     var item = activeWarnings[k];
+                    if (that.options.language == 'da') {
+                        var lat = parseFloat(item.latitude);
+                        var lng = parseFloat(item.longitude);
+                        var coords = [lng, lat];
+                        var locationType = 'Point';
+                        var mainArea = item.mainArea;
+                        var subArea = item.subArea;
+                        var encText = item.ENCtext;
+                        var validFrom = item.created;
+                        var navWarning = item.text.join('');
+                    } else {
+                        var coords;
+                        var locationType;
+                        if (item.points.point.constructor === Array) {
+                            coords = [];
+                            locationType = 'LineString';
+                            for (var kk in item.points.point) {
+                                var lat = item.points.point[kk].latitude;
+                                var lng = item.points.point[kk].longitude;
+                                var coord = [parseFloat(lng), parseFloat(lat)]
+                                coords.push(coord);
+                            }
+                        } else {
+                            var lat = item.points.point.latitude;
+                            var lng = item.points.point.longitude;
+                            coords = [parseFloat(lng), parseFloat(lat)]
+                            locationType = item.locationType;
+                        }
+                        var mainArea = item.areaEnglish;
+                        var subArea = item.subarea;
+                        var encText = item.encText;
+                        var validFrom = item.validFrom;
+                        var navWarning = item.navWarning;
+                    }
                     var newFeature = {
                         "type": "Feature",
                         "geometry": {
-                            "type": item.locationType,
-                            "coordinates": [parseFloat(item.points.point.longitude),
-                                            parseFloat(item.points.point.latitude)]
+                            "type": locationType,
+                            "coordinates": coords
                         },
                         "properties": {
-                            "areaEnglish": item.areaEnglish,
+                            "mainarea": mainArea,
                             "created": item.created,
-                            "encText": item.encText,
-                            "id": item.id,
-                            "messageId": item.messageId,
-                            "navWarning": item.navWarning,
-                            "organisation": item.organisation,
-                            "subarea": item.subarea,
+                            "encText": encText,
+                            "navWarning": navWarning,
+                            "subarea": subArea,
                             "updated": item.updated,
-                            "validFrom": item.validFrom
+                            "validFrom": validFrom
                         }
                     };
                     geojson.features.push(newFeature);
                 }
-                var popup_template = '<div class="msi"><h4>{title}</h4><p>{body}</p><hr/><p>Created: {created}</p><p>Updated: {updated}</p><p>Valid from: {validFrom}</p><hr/><p>Main area: {areaEnglish}</p><p>Subarea: {subarea}</p><hr/><p>Longitude: {longitude}</p><p>Latitude: {latitude}</p></div>';
+                if (that.options.language == 'da') {
+                    var popup_template = '<div class="msi"><h4>Aktuelle advarsler</h4><p>{body}</p><hr/><p>Lavet: {created}</p><p>Opdateret: {updated}</p><p>Gyldig fra: {validFrom}</p><hr/><p>Hovedområde: {mainarea}</p><p>Underområde: {subarea}</p><hr/><p>Længdegrad: {longitude}</p><p>Breddegrad: {latitude}</p></div>';
+                } else {
+                    var popup_template = '<div class="msi"><h4>Maritime Safety Information</h4><p>{body}</p><hr/><p>Created: {created}</p><p>Updated: {updated}</p><p>Valid from: {validFrom}</p><hr/><p>Main area: {mainarea}</p><p>Subarea: {subarea}</p><hr/><p>Longitude: {longitude}</p><p>Latitude: {latitude}</p></div>';
+                }
                 var lgeojson = L.geoJson(geojson, {
                     onEachFeature: function (feature, layer) {
                         var innerhtml = popup_template.replace('{title}', feature.properties.encText);
@@ -63,7 +101,7 @@
                         innerhtml = innerhtml.replace('{created}', feature.properties.created);
                         innerhtml = innerhtml.replace('{updated}', feature.properties.updated);
                         innerhtml = innerhtml.replace('{validFrom}', feature.properties.validFrom);
-                        innerhtml = innerhtml.replace('{areaEnglish}', feature.properties.areaEnglish);
+                        innerhtml = innerhtml.replace('{mainarea}', feature.properties.mainarea);
                         innerhtml = innerhtml.replace('{subarea}', feature.properties.subarea);
                         innerhtml = innerhtml.replace('{longitude}', feature.geometry.coordinates[0]);
                         innerhtml = innerhtml.replace('{latitude}', feature.geometry.coordinates[1]);
@@ -73,14 +111,27 @@
                     pointToLayer: function (feature, latlng) {
                         return L.circleMarker(latlng, {
                                    radius: 8,
-                                   fillColor: "red",
-                                   color: "#111",
                                    weight: 1,
+                                   color: "#e2007a",
                                    opacity: 1,
-                                   fillOpacity: 0.8
+                                   fillColor: "#e2007a",
+                                   fillOpacity: 0.2
                         });
-                    }
+                    },
                     /*jshint unused: false*/
+                    style: function (feature) {
+                        var weight = 1;
+                        if (feature.geometry.type == 'LineString') {
+                            var weight = 4;
+                        };
+                        return {
+                            weight: weight,
+                            color: "#e2007a",
+                            opacity: 1,
+                            fillColor: "#e2007a",
+                            fillOpacity: 0.2
+                        };
+                    }
                 });
                 that.addLayer(lgeojson);
                 L.GeoJSON.prototype.onAdd.call(that, map);
@@ -88,6 +139,11 @@
 
             // Make SOAP request
             var soapOptions = this.options.soap;
+            if (this.options.language == 'da') {
+                soapOptions.method = 'mes:getActiveWarning';
+            } else {
+                soapOptions.method =  'mes:getActiveWarningCountry';
+            }
             soapOptions.success = success;
             soapOptions.error = function (soapResponse) {
                 // show error
