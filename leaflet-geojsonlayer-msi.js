@@ -126,8 +126,8 @@
                     /*jshint unused: true*/
                     pointToLayer: function (feature, latlng) {
                         return L.circleMarker(latlng, {
-                                   radius: 8,
-                                   weight: 1,
+                                   radius: 7,
+                                   weight: 2,
                                    color: "#e2007a",
                                    opacity: 1,
                                    fillColor: "#e2007a",
@@ -136,7 +136,7 @@
                     },
                     /*jshint unused: false*/
                     style: function (feature) {
-                        var weight = 1;
+                        var weight = 2;
                         if (feature.geometry.type == 'LineString') {
                             var weight = 4;
                         };
