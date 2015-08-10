@@ -95,7 +95,7 @@
                 if (that.options.language == 'da') {
                     var popup_template = '<div class="msi"><h4>Aktuelle advarsler</h4><p>{body}</p><hr/><p>Lavet: {created}</p><p>Opdateret: {updated}</p><p>Gyldig fra: {validFrom}</p><hr/><p>Hovedområde: {mainarea}</p><p>Underområde: {subarea}</p><hr/><p>Længdegrad: {longitude}</p><p>Breddegrad: {latitude}</p></div>';
                 } else {
-                    var popup_template = '<div class="msi"><h4>Maritime Safety Information</h4><p>{body}</p><hr/><p>Created: {created}</p><p>Updated: {updated}</p><p>Valid from: {validFrom}</p><hr/><p>Main area: {mainarea}</p><p>Subarea: {subarea}</p><hr/><p>Longitude: {longitude}</p><p>Latitude: {latitude}</p></div>';
+                    var popup_template = '<div class="msi"><h4>Maritime Safety Information</h4><p>{body}</p><hr/><p>Created: {created}</p><p>Updated: {updated}</p><p>Valid from: {validFrom}</p><hr/><p>Main area: {mainarea}</p><p>Subarea: {subarea}</p><hr/>{points}</div>';
                 }
                 var lgeojson = L.geoJson(geojson, {
                     onEachFeature: function (feature, layer) {
@@ -106,8 +106,20 @@
                         innerhtml = innerhtml.replace('{validFrom}', feature.properties.validFrom);
                         innerhtml = innerhtml.replace('{mainarea}', feature.properties.mainarea);
                         innerhtml = innerhtml.replace('{subarea}', feature.properties.subarea);
-                        innerhtml = innerhtml.replace('{longitude}', feature.geometry.coordinates[0]);
-                        innerhtml = innerhtml.replace('{latitude}', feature.geometry.coordinates[1]);
+                        var point_template = '<p>Longitude: {longitude}</p><p>Latitude: {latitude}</p>';
+                        var points = '';
+                        if (feature.geometry.type !== 'Point') {
+                            for (var kk in feature.geometry.coordinates) {
+                                var point = feature.geometry.coordinates[kk];
+                                points += point_template;
+                                points = points.replace('{longitude}', point[0]);
+                                points = points.replace('{latitude}', point[1]);
+                            }
+                        } else {
+                            points = point_template.replace('{longitude}', feature.geometry.coordinates[0]);
+                            points = points.replace('{latitude}', feature.geometry.coordinates[1]);
+                        };
+                        innerhtml = innerhtml.replace('{points}', points);
                         layer.bindPopup(innerhtml, {maxWidth: 350, maxHeight: 600});
                     },
                     /*jshint unused: true*/
