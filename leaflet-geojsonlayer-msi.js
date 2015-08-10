@@ -93,9 +93,11 @@
                     geojson.features.push(newFeature);
                 }
                 if (that.options.language == 'da') {
-                    var popup_template = '<div class="msi"><h4>Aktuelle advarsler</h4><p>{body}</p><hr/><p>Lavet: {created}</p><p>Opdateret: {updated}</p><p>Gyldig fra: {validFrom}</p><hr/><p>Hovedområde: {mainarea}</p><p>Underområde: {subarea}</p><hr/><p>Længdegrad: {longitude}</p><p>Breddegrad: {latitude}</p></div>';
+                    var popup_template = '<div class="msi"><h4>Aktuelle advarsler</h4><p>{body}</p><hr/><p>Lavet: {created}</p><p>Opdateret: {updated}</p><p>Gyldig fra: {validFrom}</p><hr/><p>Hovedområde: {mainarea}</p><p>Underområde: {subarea}</p><hr/>{points}</div>';
+                    var point_template = '<p>Længdegrad: {longitude}</p><p>Breddegrad: {latitude}</p>';
                 } else {
                     var popup_template = '<div class="msi"><h4>Maritime Safety Information</h4><p>{body}</p><hr/><p>Created: {created}</p><p>Updated: {updated}</p><p>Valid from: {validFrom}</p><hr/><p>Main area: {mainarea}</p><p>Subarea: {subarea}</p><hr/>{points}</div>';
+                    var point_template = '<p>Longitude: {longitude}</p><p>Latitude: {latitude}</p>';
                 }
                 var lgeojson = L.geoJson(geojson, {
                     onEachFeature: function (feature, layer) {
@@ -106,7 +108,6 @@
                         innerhtml = innerhtml.replace('{validFrom}', feature.properties.validFrom);
                         innerhtml = innerhtml.replace('{mainarea}', feature.properties.mainarea);
                         innerhtml = innerhtml.replace('{subarea}', feature.properties.subarea);
-                        var point_template = '<p>Longitude: {longitude}</p><p>Latitude: {latitude}</p>';
                         var points = '';
                         if (feature.geometry.type !== 'Point') {
                             for (var kk in feature.geometry.coordinates) {
