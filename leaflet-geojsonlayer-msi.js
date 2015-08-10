@@ -3,7 +3,7 @@
     'use strict';
     L.GeoJSON.MSI = L.GeoJSON.extend({
         options: {
-            language: 'da',
+            language: 'en',
             soap: {
                 url: 'http://api.fcoo.dk/msi/ws/warning',
                 appendMethodToURL: false,
