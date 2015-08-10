@@ -32,6 +32,9 @@
                     method = 'getActiveWarningResponse';
                 }
                 var activeWarnings = jsonResponse.Body[method].return.item;
+                if (! activeWarnings.constructor === Array) {
+                    activeWarnings = [activeWarnings];
+                }
                 var geojson = {};
                 geojson.type = 'FeatureCollection';
                 geojson.features = [];
