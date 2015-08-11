@@ -5,7 +5,7 @@
         options: {
             language: 'en',
             soap: {
-                url: 'http://api.fcoo.dk/msi/ws/warning',
+                url: location.protocol + '//api.fcoo.dk/msi/ws/warning',
                 appendMethodToURL: false,
                 soap12: false,
                 SOAPAction: "",
@@ -31,7 +31,13 @@
                 if (that.options.language == 'da') {
                     method = 'getActiveWarningResponse';
                 }
-                var activeWarnings = jsonResponse.Body[method].return.item;
+                var activeWarnings;
+                if (jsonResponse.hasOwnProperty('soap:Body')) {
+                    // IE9
+                    activeWarnings = jsonResponse['soap:Body']['ns1:' + method].return.item;
+                } else {
+                    activeWarnings = jsonResponse['Body'][method].return.item;
+                }
                 if (! activeWarnings.constructor === Array) {
                     activeWarnings = [activeWarnings];
                 }
