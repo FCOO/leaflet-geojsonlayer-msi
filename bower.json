@@ -15,6 +15,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery.soap": "~1.6.5"
+    "leaflet": "https://github.com/jblarsen/Leaflet.git#master",
+    "jquery": "~2.1.4"
   }
 }
