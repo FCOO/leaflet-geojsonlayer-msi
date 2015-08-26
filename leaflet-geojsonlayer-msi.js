@@ -7,10 +7,10 @@
             baseurl: location.protocol + '//app.fcoo.dk/warnings/msi/msi_{language}.json',
             onEachFeature: function (feature, layer) {
                 if (feature.properties.language == 'da') {
-                    var popup_template = '<div class="msi"><h4>Aktuelle advarsler</h4><p>{body}</p><hr/><p>Lavet: {created}</p><p>Opdateret: {updated}</p><hr/><p>Hovedområde: {mainarea}</p><p>Underområde: {subarea}</p><hr/>{points}</div>';
+                    var popup_template = '<div class="msi"><h4>Aktuelle advarsler</h4><p>{body}</p><hr/><p>Lavet: {created}</p><p>Opdateret: {updated}</p><hr/><p>Hovedområde: {mainarea}</p><p>Underområde: {subarea}</p><hr/>{points}<hr/><p>Kilde: <a href="http://www.soefartsstyrelsen.dk">Søfartsstyrelsen</a></p></div>';
                     var point_template = '<p>Længdegrad: {longitude}</p><p>Breddegrad: {latitude}</p>';
                 } else {
-                    var popup_template = '<div class="msi"><h4>Maritime Safety Information</h4><p>{body}</p><hr/><p>Created: {created}</p><p>Updated: {updated}</p><p>Valid from: {validFrom}</p><hr/><p>Main area: {mainarea}</p><p>Subarea: {subarea}</p><hr/>{points}</div>';
+                    var popup_template = '<div class="msi"><h4>Maritime Safety Information</h4><p>{body}</p><hr/><p>Created: {created}</p><p>Updated: {updated}</p><p>Valid from: {validFrom}</p><hr/><p>Main area: {mainarea}</p><p>Subarea: {subarea}</p><hr/>{points}<hr/><p>Source: <a href="http://dma.dk">Danish Maritime Authority</a></p></div>';
                     var point_template = '<p>Longitude: {longitude}</p><p>Latitude: {latitude}</p>';
                 }
                 var innerhtml = popup_template.replace('{title}', feature.properties.encText);
