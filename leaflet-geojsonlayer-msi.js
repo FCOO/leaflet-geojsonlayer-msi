@@ -33,7 +33,7 @@
                     points = points.replace('{latitude}', feature.geometry.coordinates[1]);
                 };
                 innerhtml = innerhtml.replace('{points}', points);
-                layer.bindPopup(innerhtml, {maxWidth: 350, maxHeight: 500});
+                layer.bindPopup(innerhtml, {maxWidth: 300, maxHeight: 400});
             },
             pointToLayer: function (feature, latlng) {
                 return L.circleMarker(latlng, {
