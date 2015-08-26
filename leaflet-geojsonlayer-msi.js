@@ -22,8 +22,8 @@
                 innerhtml = innerhtml.replace('{subarea}', feature.properties.subarea);
                 var points = '';
                 if (feature.geometry.type !== 'Point') {
-                    for (var kk in feature.geometry.coordinates) {
-                        var point = feature.geometry.coordinates[kk];
+                    for (var kk in feature.geometry.geometries[0].coordinates) {
+                        var point = feature.geometry.geometries[0].coordinates[kk];
                         points += point_template;
                         points = points.replace('{longitude}', point[0]);
                         points = points.replace('{latitude}', point[1]);
