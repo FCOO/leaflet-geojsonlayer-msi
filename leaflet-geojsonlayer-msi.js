@@ -1,16 +1,20 @@
 (function () {
     /* global L */
     'use strict';
-    L.GeoJSON.MSI = L.GeoJSON.extend({
+
+		var msiDivIcon = L.divIcon({className: 'msi-marker', iconSize:[20,20], iconAnchor:[11,11]});
+
+		L.GeoJSON.MSI = L.GeoJSON.extend({
         options: {
             language: 'en',
-            baseurl: location.protocol + '//app.fcoo.dk/warnings/msi/msi_{language}.json',
-            onEachFeature: function (feature, layer) {
+						protocol: location.protocol,
+            baseurl	: '//app.fcoo.dk/warnings/msi/msi_{language}.json',
+            onEachFeature: function (feature, layer) { 
                 if (feature.properties.language == 'da') {
                     var popup_template = '<div class="msi"><h4>Aktuelle advarsler</h4><p>{body}</p><hr/><p>Tid: {updated}</p><hr/><p>Hovedområde: {mainarea}</p><p>Underområde: {subarea}</p><hr/>{points}<hr/><p>Kilde: <a href="http://www.soefartsstyrelsen.dk">Søfartsstyrelsen</a></p></div>';
                     var point_template = '<p>Længdegrad: {longitude}</p><p>Breddegrad: {latitude}</p>';
                 } else {
-                    var popup_template = '<div class="msi"><h4>Maritime Safety Information</h4><p>{body}</p><hr/><p>Time: {updated}</p><hr/><p>Main area: {mainarea}</p><p>Subarea: {subarea}</p><hr/>{points}<hr/><p>Source: <a href="http://dma.dk">Danish Maritime Authority</a></p></div>';
+                    var popup_template = '<div class="msi"><h4>Maritime Safety Information</h4><p>{body}</p><hr/><p>Time: {updated}</p><hr/><p>Main area: {mainarea}</p><p>Subarea: {subarea}</p><hr/>{points}<hr/><p>Source: <a target="_new" href="http://dma.dk">Danish Maritime Authority</a></p></div>';
                     var point_template = '<p>Longitude: {longitude}</p><p>Latitude: {latitude}</p>';
                 }
                 var innerhtml = popup_template.replace('{title}', feature.properties.encText);
@@ -33,41 +37,39 @@
                 innerhtml = innerhtml.replace('{points}', points);
                 layer.bindPopup(innerhtml, {maxWidth: 300, maxHeight: 400});
             },
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, {
-                           radius: 8,
-                           weight: 2,
-                           color: "#e2007a",
-                           opacity: 1,
-                           fillColor: "#e2007a",
-                           fillOpacity: 0.2
-                });
-            },
-            style: function (feature) {
+            pointToLayer: function (feature, latlng) {  
+							var result = L.marker(latlng, {icon: msiDivIcon});
+							result.on('add', function(){ this._icon.title = 'MSI: ' + feature.properties.encText + '\n' + feature.properties.mainarea + ' - ' + feature.properties.subarea; }, result);
+							return result;
+						},
+
+						style: function (feature) { 
                 return {
                     weight: 2,
                     color: "#e2007a",
                     opacity: 1,
                     fillColor: "#e2007a",
-                    fillOpacity: 0.2
+	                  fillOpacity: 0.2,
                 };
             }
+
         },
 
         initialize: function (options) {
             var that = this;
             L.setOptions(this, options);
             this._layers = {};
-            this.options.url = this.options.baseurl.replace('{language}', this.options.language);
+            this.options.url = this.options.protocol  + this.options.baseurl.replace('{language}', this.options.language);
         },
 
         onAdd: function (map) {
             var that = this;
-            $.getJSON(this.options.url, function (data) {
+						$.getJSON(this.options.url, function (data) {
                 that.addData(data);
                 L.GeoJSON.prototype.onAdd.call(that, map);
             });
-        },
+
+				},
   });
 
   return L.GeoJSON.MSI;
