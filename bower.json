@@ -15,7 +15,9 @@
     "tests"
   ],
   "dependencies": {
+    "jquery": "~2.1.4",
+    "latlng-format": "NielsHolt/latlng-format#master",
     "leaflet": "https://github.com/jblarsen/Leaflet.git#master",
-    "jquery": "~2.1.4"
+    "moment": "master"
   }
 }
