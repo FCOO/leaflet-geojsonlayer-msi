@@ -1,0 +1,32 @@
+{
+  "name": "latlng-format",
+  "homepage": "https://github.com/NielsHolt/latlng-format",
+  "authors": [
+    "Niels Holt <niels@steenbuchholt.dk>"
+  ],
+  "description": "A class to validate, format, and transform positions (eq. leaflet LatLng)",
+  "main": [
+    "dist/latlng-format.min.js"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "moduleType": [
+    "es6"
+  ],
+  "_release": "62a3b5cd81",
+  "_resolution": {
+    "type": "branch",
+    "branch": "master",
+    "commit": "62a3b5cd81e598beb5a0ec641b1c54b833d68fb1"
+  },
+  "_source": "git://github.com/NielsHolt/latlng-format.git",
+  "_target": "master",
+  "_originalSource": "NielsHolt/latlng-format",
+  "_direct": true
+}

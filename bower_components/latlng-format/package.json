@@ -1,0 +1,36 @@
+{
+  "name": "latlng-format",
+  "version": "1.0.0",
+  "description": "A class to validate, format, and transform positions (eq. leaflet LatLng)",
+  "main": "dist/latlng-format.min.js",
+	"author": "Niels Holt <niels@steenbuchholt.dk>",
+  "license": "MIT",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "jshint": "latest",
+    "uglifyjs": "latest"
+  },
+  "jshintConfig": {
+    "globals": {
+      "console": false,
+      "DEBUG": false,
+			"document": false,
+			"alert"		: false
+    },
+    "undef": true,
+    "unused": true
+  },
+  "scripts": {
+    "lint": "jshint src/latlng-format.js",
+		"build": "uglifyjs src/latlng-format.js -c -m -o dist/latlng-format.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NielsHolt/latlng-format.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NielsHolt/latlng-format/issues"
+  },
+  "homepage": "https://github.com/NielsHolt/latlng-format"
+}
