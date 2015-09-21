@@ -6,18 +6,10 @@
 
 		var latlngFormat = new LatLngFormat( 1 ); //1=Degrees Decimal minutes: N65°30.258'
 
-		//
-		var dateFormats = [
-			['ddd, DD. MMM YYYY'	, 'ddd, MMM DD, YYYY'	, 'ddd, YYYY MMM DD'],	//Mon, 24. Dec 2014	| Mon Dec 24, 2014	| Mon 2014 Dec 24
-			['ddd, DD. MMM YY'		, 'ddd, MMM DD, YY'		, 'ddd, YY MMM DD'	],	//Mon, 24. Dec 14		| Mon Dec 24, 14		| Mon 14 Dec 24
-			['DD. MMM YYYY'				, 'MMM DD, YYYY'			, 'YYYY MMM DD'			],	//24. Dec 2014			| Dec 24, 2014			| 2014 Dec 24
-			['DD. MMM \'YY'					, 'MMM DD, YY'				, 'YY MMM DD'		  ],	//24. Dec '14				| Dec 24, 14				| 14 Dec 24
-			['DD/MM/YYYY'					, 'MM/DD/YYYY'				, 'YYYY/MM/DD'			],	//24/12/2014				| 12/24/2014				| 2014/12/24
-			['DD/MM/YY'						, 'MM/DD/YY'					, 'YY/MM/DD'				]		//24/12/14					| 12/24/14					| 14/12/24
-		];
-		var dateAsHTML = function( date, localTxt ){
-			var dateFormat = 'DD-MMM-YY HH:mm';//dateFormats[3][0]+' HH:mm';
-			var m = moment.utc(date);
+		var dateAsHTML = function( date, language ){
+			var dateFormat = 'DD-MMM-YY HH:mm',
+					m = moment.utc(date),
+					localTxt = language == 'da' ? 'lokal' : 'local';
 			return m.local().format(dateFormat)+ '&nbsp;('+localTxt+')&nbsp;&nbsp;'	+'<em>'+m.utc().format(dateFormat) + '&nbsp;(UTC)</em>';	
 		};
 
@@ -38,7 +30,7 @@
                 }
                 var innerhtml = popup_template.replace('{title}', feature.properties.encText);
                 innerhtml = innerhtml.replace('{body}', feature.properties.navWarning);
-                innerhtml = innerhtml.replace('{updated}', dateAsHTML(feature.properties.updated, feature.properties.language == 'da' ? 'lokal' : 'local'));
+                innerhtml = innerhtml.replace('{updated}', dateAsHTML(feature.properties.updated, feature.properties.language));
                 innerhtml = innerhtml.replace('{mainarea}', feature.properties.mainarea);
                 innerhtml = innerhtml.replace('{subarea}', feature.properties.subarea);
                 var points = '';
