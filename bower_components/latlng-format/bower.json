@@ -1,0 +1,23 @@
+{
+  "name": "latlng-format",
+  "version": "1.0.0",
+  "homepage": "https://github.com/NielsHolt/latlng-format",
+  "authors": [
+    "Niels Holt <niels@steenbuchholt.dk>"
+  ],
+  "description": "A class to validate, format, and transform positions (eq. leaflet LatLng)",
+  "main": [
+    "dist/latlng-format.min.js"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "moduleType": [
+    "es6"
+  ]
+}
