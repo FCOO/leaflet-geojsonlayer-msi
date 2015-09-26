@@ -1,27 +1,18 @@
-@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/web-dev\/leaflet-geojsonlayer-msi\/leaflet-geojsonlayer-msi\.scss}line{font-family:\000031}}
 .msi p {
-  margin: 0;
-}
+  margin: 0; }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/web-dev\/leaflet-geojsonlayer-msi\/leaflet-geojsonlayer-msi\.scss}line{font-family:\000034}}
 .msi h4 {
   margin-top: 3px;
-  margin-bottom: 6px;
-}
+  margin-bottom: 6px; }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/web-dev\/leaflet-geojsonlayer-msi\/leaflet-geojsonlayer-msi\.scss}line{font-family:\000038}}
 .msi h5 {
   margin-top: 2px;
-  margin-bottom: 2px;
-}
+  margin-bottom: 2px; }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/web-dev\/leaflet-geojsonlayer-msi\/leaflet-geojsonlayer-msi\.scss}line{font-family:\0000312}}
 .msi hr {
   margin-top: 3px;
-  margin-bottom: 3px;
-}
+  margin-bottom: 3px; }
 
-@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/web-dev\/leaflet-geojsonlayer-msi\/leaflet-geojsonlayer-msi\.scss}line{font-family:\0000317}}
 .msi-marker {
   box-sizing: content-box;
   width: 20px;
@@ -37,15 +28,10 @@
   text-align: center;
   letter-spacing: -1px;
   padding-right: 1px;
-  background-color: rgba(255, 255, 255, 0.2);
-}
-@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/web-dev\/leaflet-geojsonlayer-msi\/leaflet-geojsonlayer-msi\.scss}line{font-family:\0000341}}
-.msi-marker:hover {
-  background-color: rgba(255, 255, 255, 0.7);
-}
-@media -sass-debug-info{filename{font-family:file\:\/\/C\:\/web-dev\/leaflet-geojsonlayer-msi\/leaflet-geojsonlayer-msi\.scss}line{font-family:\0000343}}
-.msi-marker:before {
-  content: 'MSI';
-}
+  background-color: rgba(255, 255, 255, 0.2); }
+  .msi-marker:hover {
+    background-color: rgba(255, 255, 255, 0.7); }
+  .msi-marker:before {
+    content: 'MSI'; }
 
 /*# sourceMappingURL=leaflet-geojsonlayer-msi.css.map */
