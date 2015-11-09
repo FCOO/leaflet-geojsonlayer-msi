@@ -18,6 +18,7 @@
     "jquery": "~2.1.4",
     "latlng-format": "NielsHolt/latlng-format#master",
     "leaflet": "https://github.com/jblarsen/Leaflet.git#master",
-    "moment": "master"
+    "moment": "master",
+    "leaflet.markercluster": "https://github.com/Leaflet/Leaflet.markercluster.git#leaflet-master"
   }
 }

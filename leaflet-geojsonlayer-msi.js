@@ -100,7 +100,6 @@
             map.on("timezonechange", function(data) {
                 that.options.timezone = data.timezone;
             });
-
         },
 
   });
