@@ -27,9 +27,9 @@
             protocol: location.protocol,
             baseurl : '//app.fcoo.dk/warnings/msi/msi_{language}.json',
             pointToLayer: function (feature, latlng) {  
-                 var result = L.marker(latlng, {icon: msiDivIcon});
-                 result.on('add', function(){ this._icon.title = 'MSI: ' + feature.properties.encText + '\n' + feature.properties.mainarea + ' - ' + feature.properties.subarea; }, result);
-                 return result;
+                var result = L.marker(latlng, {icon: msiDivIcon});
+                result.on('add', function(){ this._icon.title = 'MSI: ' + feature.properties.encText + '\n' + feature.properties.mainarea + ' - ' + feature.properties.subarea; }, result);
+                return result;
             },
             style: function (feature) { 
                 return {
