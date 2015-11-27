@@ -48,10 +48,10 @@ L.MarkerClusterGroup = L.FeatureGroup.extend({
 		}
 
 		this._featureGroup = L.featureGroup();
-		//this._featureGroup.on(L.FeatureGroup.EVENTS, this._propagateEvent, this);
+		this._featureGroup.on(L.FeatureGroup.EVENTS, this._propagateEvent, this);
 
 		this._nonPointGroup = L.featureGroup();
-		//this._nonPointGroup.on(L.FeatureGroup.EVENTS, this._propagateEvent, this);
+		this._nonPointGroup.on(L.FeatureGroup.EVENTS, this._propagateEvent, this);
 
 		this._inZoomAnimation = 0;
 		this._needsClustering = [];

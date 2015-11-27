@@ -9,13 +9,13 @@ Contributing to Leaflet
 ## Getting Involved
 
 Third-party patches are absolutely essential on our quest to create the best mapping library that will ever exist.
-However, they're not the only way to get involved with Leaflet development.
-You can help the project tremendously by discovering and [reporting bugs](#reporting-bugs);
-[improving documentation](#improving-documentation);
+However, they're not the only way to get involved with the development of Leaflet.
+You can help the project tremendously by discovering and [reporting bugs](#reporting-bugs),
+[improving documentation](#improving-documentation),
 helping others on the [Leaflet forum](https://groups.google.com/forum/#!forum/leaflet-js)
-and [GitHub issues](https://github.com/Leaflet/Leaflet/issues);
-showing your support for your favorite feature suggestions on [Leaflet UserVoice page](http://leaflet.uservoice.com);
-tweeting to [@LeafletJS](http://twitter.com/LeafletJS);
+and [GitHub issues](https://github.com/Leaflet/Leaflet/issues),
+showing your support for your favorite feature suggestions on [Leaflet UserVoice page](http://leaflet.uservoice.com),
+tweeting to [@LeafletJS](http://twitter.com/LeafletJS)
 and spreading the word about Leaflet among your colleagues and friends.
 
 ## Reporting Bugs
@@ -26,12 +26,12 @@ first make sure that your issue is caused by Leaflet, not your application code
 Second, search the already reported issues for similar cases,
 and if it's already reported, just add any additional details in the comments.
 
-After you've made sure that you've found a new Leaflet bug,
+After you made sure that you've found a new Leaflet bug,
 here are some tips for creating a helpful report that will make fixing it much easier and quicker:
 
  * Write a **descriptive, specific title**. Bad: *Problem with polylines*. Good: *Doing X in IE9 causes Z*.
  * Include **browser, OS and Leaflet version** info in the description.
- * Create a **simple test case** that demonstrates the bug (e.g. using [JSFiddle](http://jsfiddle.net/) or [JS Bin](http://jsbin.com/)).
+ * Create a **simple test case** that demonstrates the bug (e.g. using [JSFiddle](http://jsfiddle.net/)).
  * Check whether the bug can be reproduced in **other browsers**.
  * Check if the bug occurs in the stable version, master, or both.
  * *Bonus tip:* if the bug only appears in the master version but the stable version is fine,
@@ -44,16 +44,16 @@ try asking [on the Leaflet forum](https://groups.google.com/forum/#!forum/leafle
 
 ### Considerations for Accepting Patches
 
-While we happily accept patches, we're also committed to keeping Leaflet simple, lightweight and blazingly fast.
+While we happily accept patches, we're also commited to keeping Leaflet simple, lightweight and blazingly fast.
 So bugfixes, performance optimizations and small improvements that don't add a lot of code
 are much more likely to get accepted quickly.
 
-Before sending a pull request with a new feature, check if it's been discussed before already
+Before sending a pull request with a new feature, first check if it's been discussed before already
 (either on [GitHub issues](https://github.com/Leaflet/Leaflet/issues)
 or [Leaflet UserVoice](http://leaflet.uservoice.com/)),
-and ask yourself two questions:
+and then ask yourself two questions:
 
- 1. Are you sure that this new feature is important enough to justify its presence in the Leaflet core?
+ 1. Are you sure that this new feature is important enough to justify its presense in the Leaflet core?
     Or will it look better as a plugin in a separate repository?
  2. Is it written in a simple, concise way that doesn't add bulk to the codebase?
 
@@ -62,8 +62,8 @@ please consider submitting another pull request with the corresponding [document
 
 ### Setting up the Build System
 
-The Leaflet build system uses [Node](http://nodejs.org/), and the [Jake](http://jakejs.com/) Javascript build tool.
-To set up the Leaflet build system, install Node then run the following commands in the project root to install Jake:
+To set up the Leaflet build system, install [Node](http://nodejs.org/),
+then run the following commands in the project root:
 
 ```
 npm install -g jake
@@ -85,7 +85,7 @@ Please do not commit to the `master` branch, or your unrelated changes will go i
 You should also follow the code style and whitespace conventions of the original codebase.
 In particular, use tabs for indentation and spaces for alignment.
 
-Before committing your changes, run `jake lint` to catch any JS errors in the code and fix them.
+Before commiting your changes, run `jake lint` to catch any JS errors in the code and fix them.
 If you add any new files to the Leaflet source, make sure to also add them to `build/deps.js`
 so that the build system knows about them.
 
@@ -125,7 +125,7 @@ From there you can click through folders/files to get details on their individua
 ## Improving Documentation
 
 The code of the live Leaflet website that contains all documentation and examples is located in the `gh-pages` branch
-and is automatically generated from a set of HTML and Markdown files by [Jekyll](http://jekyllrb.com/).
+and is automatically generated from a set of HTML and Markdown files by [Jekyll](https://github.com/mojombo/jekyll).
 
 The easiest way to make little improvements such as fixing typos without even leaving the browser
 is by editing one of the files with the online GitHub editor:
@@ -142,14 +142,14 @@ If you need to make edits in a local repository to see how it looks in the proce
  4. Open `localhost:4000` in your browser.
 
 Now any file changes will be updated when you reload pages automatically.
-After committing the changes, just send a pull request.
+After commiting the changes, just send a pull request.
 
-If you need to update documentation according to a new feature that only appeared in the master version (not the stable one),
-you need to make changes to the `gh-pages-master` branch instead of `gh-pages`.
+If you need to update documentation according to a new feature that only appeared in the master version (not stable one),
+you need to make changes to `gh-pages-master` branch instead of `gh-pages`.
 It will get merged into the latter when released as stable.
 
 ## Thank You
 
-Not only does your contribution to Leaflet and its community earn our gratitude, but it also makes you AWESOME.
+Not only are we grateful for any contributions, &mdash; helping Leaflet and its community actually makes you AWESOME.
 Join [this approved list of awesome people](https://github.com/Leaflet/Leaflet/graphs/contributors)
 and help us push the limits of what's possible with online maps!

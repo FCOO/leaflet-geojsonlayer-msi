@@ -28,6 +28,5 @@
   },
   "_source": "git://github.com/moment/moment.git",
   "_target": "master",
-  "_originalSource": "moment",
-  "_direct": true
+  "_originalSource": "moment"
 }

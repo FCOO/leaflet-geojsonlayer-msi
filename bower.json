@@ -17,7 +17,7 @@
   "dependencies": {
     "jquery": "~2.1.4",
     "latlng-format": "NielsHolt/latlng-format#master",
-    "leaflet": "https://github.com/jblarsen/Leaflet.git#master",
+    "leaflet": "https://github.com/jblarsen/Leaflet.git#~0.7.3",
     "moment": "master",
     "leaflet.markercluster": "https://github.com/Leaflet/Leaflet.markercluster.git#leaflet-master"
   }
