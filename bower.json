@@ -19,6 +19,6 @@
     "latlng-format": "NielsHolt/latlng-format#master",
     "leaflet": "https://github.com/jblarsen/Leaflet.git#~0.7.3",
     "moment": "master",
-    "leaflet.markercluster": "https://github.com/Leaflet/Leaflet.markercluster.git#leaflet-master"
+    "leaflet.markercluster": "https://github.com/Leaflet/Leaflet.markercluster.git#master"
   }
 }
