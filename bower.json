@@ -1,12 +1,36 @@
 {
-  "name": "leaflet-geojsonlayer-msi",
-  "main": "leaflet-geojsonlayer-msi.js",
-  "version": "0.1.0",
+  "name"		: "leaflet-geojsonlayer-msi",
+  "version"	: "0.1.0",
+  "homepage": "https://github.com/FCOO/leaflet-geojsonlayer-msi",
   "authors": [
-    "Jesper Baasch-Larsen <jla@fcoo.dk>"
+    "Jesper Larsen jla@fcoo.dk"
   ],
-  "description": "Danish Maritime Safety Information layer for Leaflet",
-  "license": "MIT",
+  "description": "",
+  "main": [
+    "dist/leaflet-geojsonlayer-msi.min.js",
+    "dist/leaflet-geojsonlayer-msi.min.css"
+  ],
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/FCOO/leaflet-geojsonlayer-msi.git"
+	},
+
+	"dependencies": {
+    "leaflet": "latest",
+		"jquery"	: "latest",
+		"moment": "latest",
+    "latlng-format": "fcoo/latlng-format"
+
+	},
+
+	"devDependencies": {
+    "bourbon": "latest",
+		"modernizr-mixin": "latest",
+		"mathsass": "latest"
+  },
+	
+	"license": "MIT",
+
   "ignore": [
     "**/.*",
     "node_modules",
@@ -14,11 +38,7 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-    "jquery": "~2.1.4",
-    "latlng-format": "NielsHolt/latlng-format#master",
-    "leaflet": "https://github.com/jblarsen/Leaflet.git#~0.7.3",
-    "moment": "master",
-    "leaflet.markercluster": "https://github.com/Leaflet/Leaflet.markercluster.git#master"
-  }
+  "moduleType": [
+    "es6"
+  ]
 }

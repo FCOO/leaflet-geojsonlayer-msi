@@ -1,0 +1,62 @@
+/***********************************************
+	leaflet-geojsonlayer-msi.scss, 
+
+	(c) 2015, FCOO
+
+	https://github.com/FCOO/leaflet-geojsonlayer-msi
+	https://github.com/FCOO
+************************************************/
+
+//BOURBON - http://bourbon.io/
+@import "../bower_components/bourbon/app/assets/stylesheets/bourbon";
+
+//MODERNIZR-MIXIN - https://github.com/danielguillan/modernizr-mixin
+@import "../bower_components/modernizr-mixin/stylesheets/modernizr";
+
+//MATHSASS - https://github.com/terkel/mathsass
+@import "../bower_components/mathsass/dist/math";
+
+.msi p {
+    margin: 0;
+}
+.msi h4 {
+    margin-top: 3px;
+    margin-bottom: 6px;
+}
+.msi h5 {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+.msi hr {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.msi-marker {
+	$size: 20px;
+	$color: #e2007a;
+
+	box-sizing: content-box;
+	width	: $size;
+	height: $size;
+
+	border				: 2px solid $color;
+	border-radius	: 50%;
+
+	margin	: 0;
+	padding	: 0;
+
+	color: $color; //black;
+	font-size			: 10px;
+	line-height		: $size;
+	font-family		: Arial;
+  text-align		: center;	
+	letter-spacing: -1px;
+	padding-right	: 1px; //To compensate for the last letter-spacing
+
+
+	background-color: rgba(255,255,255,0.2);
+	&:hover { 	background-color: rgba(255,255,255,0.7); }
+
+	&:before { content: 'MSI'; }
+}
