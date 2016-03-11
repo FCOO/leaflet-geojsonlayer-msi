@@ -1,6 +1,6 @@
 {
-  "name"		: "leaflet-geojsonlayer-msi",
-  "version"	: "0.1.0",
+  "name": "leaflet-geojsonlayer-msi",
+  "version": "0.1.1",
   "homepage": "https://github.com/FCOO/leaflet-geojsonlayer-msi",
   "authors": [
     "Jesper Larsen jla@fcoo.dk"
@@ -10,27 +10,22 @@
     "dist/leaflet-geojsonlayer-msi.min.js",
     "dist/leaflet-geojsonlayer-msi.min.css"
   ],
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/FCOO/leaflet-geojsonlayer-msi.git"
-	},
-
-	"dependencies": {
-    "leaflet": "latest",
-		"jquery"	: "latest",
-		"moment": "latest",
-    "latlng-format": "fcoo/latlng-format"
-
-	},
-
-	"devDependencies": {
-    "bourbon": "latest",
-		"modernizr-mixin": "latest",
-		"mathsass": "latest"
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/FCOO/leaflet-geojsonlayer-msi.git"
   },
-	
-	"license": "MIT",
-
+  "dependencies": {
+    "leaflet": "latest",
+    "jquery": "latest",
+    "moment": "latest",
+    "latlng-format": "fcoo/latlng-format"
+  },
+  "devDependencies": {
+    "bourbon": "latest",
+    "modernizr-mixin": "latest",
+    "mathsass": "latest"
+  },
+  "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
