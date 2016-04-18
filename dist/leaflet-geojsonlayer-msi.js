@@ -28,7 +28,7 @@
 	};
 
 
-var Feature = L.Class.extend({
+var MsiFeature = L.Class.extend({
     initialize: function (feature, geoJSON_MSI) {
 			this.feature = feature;
       this.geoJSON_MSI = geoJSON_MSI;
@@ -158,13 +158,13 @@ var Feature = L.Class.extend({
 
       // Set method to perform on each feature
       this.options.onEachFeature = function (feature, layer) {
-				var featureObj = new Feature( feature, _this );
+				var msiFeature = new MsiFeature( feature, _this );
 				layer.bindPopup('', {
 					maxWidth		: 300,
 					maxHeight		: 400,
 
-					getContent: featureObj.updatePopup,
-					context		: featureObj,
+					getContent: msiFeature.updatePopup,
+					context		: msiFeature,
 
 					updateOnMapEvents	: 'latlngformatchange'
 				});
