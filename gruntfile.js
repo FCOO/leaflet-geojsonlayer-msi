@@ -5,6 +5,8 @@ module.exports = function(grunt) {
 
 	var stripJsonComments	= require('strip-json-comments');
 	var semver						= require('semver');
+	var getobject = require('getobject');
+
 
 	function readFile(filename, isJSON, stripComments, defaultContents){
 		if (grunt.file.exists(filename)){
@@ -17,12 +19,20 @@ module.exports = function(grunt) {
 			return defaultContents;
 	}
 
+	function writeFile(fileName, isJSON, contents ){
+		if (isJSON)
+		  contents = JSON.stringify(contents);
+		grunt.file.write(fileName, contents);
+	}
+
 	//*******************************************************
 	// Variables to define the type of repository
 	var gruntfile_setup =	readFile('Gruntfile_setup.json', true, true, {
 													isApplication							: false,	//true for stand-alone applications. false for packages/plugins
 													haveStyleSheet						: false,	//true if the packages have css and/or scss-files
 													haveJavaScript						: true,		//true if the packages have js-files
+													haveGhPages								: true,		//true if there is a branch "gh-pages" used for demos
+
 													minimizeBowerComponentsJS	: true,		//Only for application: Minifies the bower components js-file
 													minimizeBowerComponentsCSS: true,		//Only for application: Minifies the bower components css-file
 													beforeProdCmd							: "",			//Cmd to be run at the start of prod-task
@@ -39,8 +49,12 @@ module.exports = function(grunt) {
 			isApplication								= !!gruntfile_setup.isApplication,
 			haveStyleSheet							= !!gruntfile_setup.haveStyleSheet,
 			haveJavaScript							= !!gruntfile_setup.haveJavaScript,
+			haveGhPages									= !!gruntfile_setup.haveGhPages,
+
+
 			minimizeBowerComponentsJS		= !!gruntfile_setup.minimizeBowerComponentsJS,
 			minimizeBowerComponentsCSS	= !!gruntfile_setup.minimizeBowerComponentsCSS,
+
 			cleanUp											= !!gruntfile_setup.cleanUp,
 			bowerCheckExistence					= !!gruntfile_setup.bowerCheckExistence,
 			bowerDebugging							= !!gruntfile_setup.bowerDebugging,
@@ -80,7 +94,6 @@ module.exports = function(grunt) {
 			},
 
 
-
 	//*******************************************************
 			today									= grunt.template.today("yyyy-mm-dd-HH-MM-ss"),
 			todayStr							= grunt.template.today("dd-mmm-yyyy HH:MM"),
@@ -97,18 +110,7 @@ module.exports = function(grunt) {
 			};
 
 
-	//Converts bwr.overrides to options for bower-concat
-	var overrides = bwr.overrides || {};
-	for (var packageName in overrides)
-		if ( overrides.hasOwnProperty(packageName) ){
-			var p_overrides = overrides[packageName];
-			if (p_overrides.dependencies)
-			  bower_concat_options.dependencies[packageName] = p_overrides.dependencies;
-			if (p_overrides.main)
-			  bower_concat_options.mainFiles[packageName] = p_overrides.main;
-		}
-
-
+	//*******************************************************
 	//Capture the log.header function to remove the 'Running tast SOMETHING" message
 	grunt.log.header = function(txt){
 		//only for test: grunt.log.writeln('-'+txt+'-');
@@ -137,6 +139,7 @@ module.exports = function(grunt) {
 		return result;
 	}
 
+	//*******************************************************
 	function srcExclude_(mask){
 		mask = typeof mask === 'string' ? [mask] : mask;
 		mask.push('!**/_*/**', '!**/_*.*');
@@ -144,6 +147,7 @@ module.exports = function(grunt) {
 	}
 
 
+	//*******************************************************
 	//runCmd. useCmdOutput = true => the command output direct to std
 	function runCmd(cmd, useCmdOutput){
 		if (!useCmdOutput)
@@ -165,6 +169,117 @@ module.exports = function(grunt) {
 		}
 	}
 
+	//*******************************************************
+	var ORIGINALFileName = '_ORIGINAL_bower.json';
+	function copyBowerJsonToORIGINAL(){
+		if (grunt.file.exists(ORIGINALFileName))
+		  grunt.file.delete(ORIGINALFileName);
+		grunt.file.copy('bower.json', ORIGINALFileName );
+	}
+
+	function copyORIGINALToBowerJson(){
+		if (grunt.file.exists(ORIGINALFileName)){
+
+			grunt.file.copy(ORIGINALFileName, 'bower.json');
+		  grunt.file.delete(ORIGINALFileName);
+		}
+	}
+
+	//Check if _ORIGINAL_bower.json exists => probably an error in last run => copy it back;
+	copyORIGINALToBowerJson();
+
+
+	//*******************************************************
+	//Find overrides and resolutions from all dependencies
+	//overridesList = [PACKAGENAME] of { overrides: {}, overridesInPackage: string }
+	//resolutionsList = [PACKAGENAME] of { resolutions: {}, resolutionsInPackage: string }
+	//packageList = [PACKAGENAME] of boolean
+	function readOverrides( bwr, packageList, overridesList, resolutionsList, first ){
+		var packageName;
+
+		//Find overrides
+		var overrides = bwr.overrides || {};
+		for (packageName in overrides)
+			if ( overrides.hasOwnProperty(packageName) ){
+				//Check if the package is already in overridesList
+				if (overridesList[packageName]){
+					if (!overridesList[packageName].firstLevel)
+						writelnYellow('WARNING - The package "' + packageName + '" has overrides in both "' + bwr.name + '" and "' + overridesList[packageName].overridesInPackage + '"' );
+				}
+				else
+					overridesList[packageName] = {
+						'overrides'					: overrides[packageName],
+						'overridesInPackage': bwr.name,
+						'firstLevel'				: first
+					}
+		}
+
+		//Find resolutions
+		var resolutions = bwr.resolutions || {};
+		for (packageName in resolutions){
+			if ( resolutions.hasOwnProperty(packageName) ){
+				//Check if the package is already in resolutionsList
+				if (resolutionsList[packageName]){
+					if (!resolutionsList[packageName].firstLevel)
+						writelnYellow('WARNING - The package "' + packageName + '" has resolutions in both "' + bwr.name + '" and "' + resolutionsList[packageName].resolutionsInPackage + '"' );
+				}
+				else
+					resolutionsList[packageName] = {
+						'resolutions'					: resolutions[packageName],
+						'resolutionsInPackage': bwr.name,
+						'firstLevel'					: first
+					}
+			}
+		}
+
+		//Find dependencies
+		var dependencies = bwr.dependencies || {};
+		for (packageName in dependencies)
+			if ( dependencies.hasOwnProperty(packageName) ){
+				//If the package already has been check => continue
+				if (packageList[ packageName ])
+				  continue;
+				packageList[ packageName ] = true;
+
+				//Read the dependences of the package
+				var nextBwr = readFile('bower_components/'+packageName +'/bower.json', true, false, {});
+				readOverrides( nextBwr, packageList, overridesList, resolutionsList, false );
+		}
+
+	}
+	var packageList = [],
+			overridesList = [],
+			resolutionsList = [],
+			overrides = {},
+			resolutions = {},
+			packageName;
+	readOverrides( bwr, packageList, overridesList, resolutionsList, true );
+	for (packageName in overridesList)
+		overrides[packageName] = overridesList[packageName].overrides;
+
+	for (packageName in resolutionsList)
+		resolutions[packageName] = resolutionsList[packageName].resolutions;
+
+	//Save the new overrides and resolutions in bwr
+	bwr.overrides = overrides;
+	bwr.resolutions = resolutions;
+
+
+	//*******************************************************
+	//Converts bwr.overrides to options for bower-concat
+	for (var packageName in overrides)
+		if ( overrides.hasOwnProperty(packageName) ){
+			var p_overrides = overrides[packageName];
+			//Removed if (p_overrides.dependencies)
+			//Removed   bower_concat_options.dependencies[packageName] = p_overrides.dependencies;
+			if (p_overrides.main)
+			  bower_concat_options.mainFiles[packageName] = p_overrides.main;
+		}
+
+
+
+
+	//*******************************************************
 	var src_to_src_files				= { expand: true,	cwd: 'src',				dest: 'src'				},	//src/**/*.* => src/**/*.*
 			temp_to_temp_files			= { expand: true,	cwd: 'temp',			dest: 'temp'			},	//temp/**/*.* => temp/**/*.*
 			temp_to_temp_dist_files	=	{ expand: true,	cwd: 'temp',			dest: 'temp_dist'	},	//temp/**/*.* => temp_dist/**/*.*
@@ -367,8 +482,9 @@ module.exports = function(grunt) {
 
 		// ** exec **
 		exec: {
-			bower_update: 'bower update --force',
-			npm_install	: 'npm install'
+			bower_update		: 'bower update',
+			bower_update_dev: 'bower update --save-dev',
+			npm_install			: 'npm install'
 		},
 
 		// ** replace **
@@ -422,7 +538,7 @@ module.exports = function(grunt) {
 
 		// ** grunt-prompt **
 		prompt: {
-		  github: {
+		  github_build_version: {
 		    options: {
 		      questions: [
 						{
@@ -441,11 +557,33 @@ module.exports = function(grunt) {
 		            { value: 'none',		name:	'None  : No new version. Just commit and push.'},
 		          ]
 		        },
-						{	config: 'ghpages',				type: 'confirm',	message: 'Merge "master" branch into "gh-pages" branch?'},
-		        { config: 'commitMessage',	type: 'input',		message: 'Message/description for new version:'	        },
 					]
 				}
-			}, //end of prompt.github
+			}, //end of prompt.github_build_version
+
+			github_commit: {
+				options: {
+					questions: [
+		        {
+		          config:  'commit',
+		          type:    'list',
+		          message: 'Select commit-action:',
+		          choices: [
+		            {	value: 'commit',	name: 'Commit : Committing staged changes to a new snapshot.' },
+		            {	value: 'amend',		name: 'Amend  : Combine staged changes with the previous commit.' },
+		          ]
+		        }
+					]
+				}
+			}, //end of prompt.commit
+
+			github_commit_message: {
+		    options: { questions: [{ config: 'commitMessage',	type: 'input',		message: 'Message/description for new commit:'}] }
+			},
+
+			github_tag_message: {
+		    options: { questions: [{ config: 'tagMessage',	type: 'input',		message: 'Message/description for tag/release:'}] }
+			},
 
 			continue: {
 		    options: {
@@ -454,7 +592,27 @@ module.exports = function(grunt) {
 					]
 				}
 			} //end of prompt.continue
+		},
+
+		auto_install: {
+			local: {},
+			bower: {
+				options: {
+					npm		: false,
+					bower	: true
+				}
+			}
+
+	  },
+
+		gitinfo: {
+			commands: {
+				'userName' : ['config', '--global', 'user.name'],
+				'remoteSHA': ['rev-parse', 'origin/master']
+			}
 		}
+
+
 	});//end of grunt.initConfig({...
 
 	//****************************************************************
@@ -480,6 +638,14 @@ module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-prompt');
 
+	grunt.loadNpmTasks('grunt-gitinfo');
+	grunt.loadNpmTasks('grunt-auto-install');
+
+
+	//Run the gitinfo-task to get username
+	grunt.task.run('gitinfo');
+
+
 	//*********************************************************
 	//CREATE THE "DEFAULT" TAST
 	//*********************************************************
@@ -490,6 +656,7 @@ module.exports = function(grunt) {
 		writelnColor('>grunt dev    ', 'white', '=> Creates a development version', 'yellow');
 		writelnColor('>grunt prod   ', 'white', '=> Creates a production version in /dist', 'yellow');
 		writelnColor('>grunt github ', 'white', '=> Create a new Github release incl. new version and tag', 'yellow');
+		writelnColor('>grunt github-cli {OPTIONS} ', 'white', '=> Create a new Github release incl. new version and tag', 'yellow');
 		writelnYellow('*************************************************************************');
 	});
 
@@ -507,14 +674,122 @@ module.exports = function(grunt) {
 
 
 	//*********************************************************
+	//CREATE THE "GITHUB-CLI" TAST
+	//*********************************************************
+	grunt.registerTask('github-cli', function(){
+
+    // Get all options
+    var nopt = require("nopt"),
+				knownOpts = {
+					"build" : Boolean,
+					"none" : Boolean,
+          "patch" : Boolean,
+          "minor" : Boolean,
+          "major" : Boolean,
+          "amend" : Boolean,
+          "commit": [String, null],
+          "tag"		: [String, null]
+				},
+				options = nopt(knownOpts);
+
+		//build
+		grunt.config('build', options.build );
+
+		//newVersion
+		grunt.config('newVersion',
+				options.none ? 'none' :
+				options.patch ? 'patch' :
+				options.minor ? 'minor' :
+				options.major ? 'major' :
+				'patch'
+		);
+
+		//commit = 'commit' or 'amend'
+		grunt.config('commit', 'commit');
+		grunt.config('commitMessage', options.commit || '');
+		if (options.amend){
+			//Check if 'git commit --amend' is allowed
+			if (grunt.config('gitinfo').local.branch.current.SHA == grunt.config('gitinfo').remoteSHA)
+				//Can't amend because current commit is already push
+			  grunt.fail.fatal('The last local commit has been push to remote => only "new" commit is possible.');
+			else
+				grunt.config('commit', 'amend');
+		}
+		grunt.config('tagMessage', options.tag || '');
+
+
+		grunt.task.run('_github_action_list');
+		grunt.config('continue', true);
+		grunt.task.run('_github_run_tasks');
+
+	});
+
+	//*********************************************************
 	//CREATE THE "GITHUB" TAST
 	//*********************************************************
-	grunt.registerTask('github', [
-		'prompt:github',
-		'_github_confirm',
-		'prompt:continue',
-		'_github_run_tasks'
-	]	);
+	grunt.registerTask('github', function(){
+		grunt.task.run('prompt:github_build_version');
+		grunt.task.run('_github_commit');
+		grunt.task.run('_github_commit_and_tag_message');
+		grunt.task.run('_github_action_list');
+		grunt.task.run('_github_confirm');
+		grunt.task.run('_github_run_tasks');
+	});
+
+	//*********************************************************
+	//Internal tasks used by task "GITHUB" and "GITHUB-CLI"
+	//*********************************************************
+	grunt.registerTask('_github_commit', function(){
+
+		//git add all
+		runCmd('git add -A');
+
+		var gitinfo = grunt.config('gitinfo').local.branch.current,
+				localSHA = gitinfo.SHA,
+				remoteSHA = grunt.config('gitinfo').remoteSHA;
+
+		//Show git status
+		writelnYellow('**************************************************');
+		writelnYellow('GIT STATUS:');
+		runCmd('git status', true);
+		writelnYellow('**************************************************\n\n');
+
+		writelnYellow('**************************************************');
+		writelnYellow('LAST REMOTE COMMIT:');
+		writelnYellow('SHA:'); grunt.log.writeln(remoteSHA);
+		writelnYellow('---------------------------------------------------');
+		writelnYellow('LAST LOCAL COMMIT:');
+		writelnYellow('SHA:'); grunt.log.writeln(gitinfo.SHA);
+		writelnYellow('Time:'); grunt.log.writeln(gitinfo.lastCommitTime);
+		writelnYellow('Message:'); grunt.log.writeln(gitinfo.lastCommitMessage);
+		writelnYellow('Author:'); grunt.log.writeln(gitinfo.lastCommitAuthor );
+		writelnYellow('Number:'); grunt.log.writeln(gitinfo.lastCommitNumber);
+		writelnYellow('**************************************************\n');
+
+		writelnYellow('Above is a list of changes to be comitted.');
+		if (grunt.config('build'))
+		  writelnYellow('PLUS files created when building eq. dist/'+name+'.min.js');
+		if (grunt.config('newVersion') != 'none')
+		  writelnYellow('PLUS bower.json and package.json');
+
+		if (localSHA == remoteSHA){
+			writelnYellow('NOTE: The last local commit has been push to remote => only "new" commit is possible.');
+			grunt.config('commit', 'commit');
+		}
+
+		if (!grunt.config('commit'))
+		  grunt.task.run('prompt:github_commit');
+	});
+
+
+
+	grunt.registerTask('_github_commit_and_tag_message', function(){
+		if (grunt.config('commit') == 'commit')
+			grunt.task.run('prompt:github_commit_message');
+
+		if (grunt.config('newVersion') != 'none')
+			grunt.task.run('prompt:github_tag_message');
+	});
 
 
 	/**************************************************
@@ -534,24 +809,33 @@ module.exports = function(grunt) {
 	grunt.registerTask('_after_dev',		function(){ _runACmd(gruntfile_setup.afterDevCmd);		});
 
 	/**************************************************
-	_github_confirm: write all selected action
+	_github_action_list: write all selected action
 	**************************************************/
-	grunt.registerTask('_github_confirm', function() {
-		grunt.log.writeln();
+	grunt.registerTask('_github_action_list', function() {
 		writelnYellow('**************************************************');
-		writelnYellow('git status:');
-		runCmd('git status', true);
-		writelnYellow('Actions:');
+		//writelnYellow('git status:');
+		//runCmd('git status', true);
+		writelnYellow('ACTIONS:');
+
 		if (grunt.config('build'))
 			writelnYellow('- Build/compile the '+(isApplication ? 'application' : 'packages'));
-		if (grunt.config('newVersion') == 'none')
-			writelnYellow('- Commit all files');
-		else {
+
+		if (grunt.config('newVersion') != 'none') {
 			var newVersion = semver.inc(currentVersion, grunt.config('newVersion'));
 			writelnYellow('- Bump \'version: "'+newVersion+'"\' to bower.json and package.json');
-			writelnYellow('- Commit all files and create new tag="'+newVersion+'"');
 		}
-		if (grunt.config('ghpages'))
+
+		if (grunt.config('commit') == 'commit')
+			writelnYellow('- Commit staged changes to a new snapshot. Message="'+grunt.config('commitMessage')+'"');
+		else
+			writelnYellow('- Amend/combine staged changes with the previous commit');
+
+		if (grunt.config('newVersion') != 'none'){
+			var tagMessage = grunt.config('tagMessage');
+			writelnYellow('- Create new tag="'+newVersion+(tagMessage ? ': '+tagMessage : '') + '"');
+		}
+
+		if (haveGhPages)
 			writelnYellow('- Merge "master" branch into "gh-pages" branch');
 		else
 			grunt.config.set('release.options.afterRelease', []); //Remove all git merge commands
@@ -561,6 +845,13 @@ module.exports = function(grunt) {
 		else
 			writelnYellow('- Push all branches and tags to GitHub');
 		writelnYellow('**************************************************');
+	});
+
+	/**************************************************
+	_github_confirm: write all selected action
+	**************************************************/
+	grunt.registerTask('_github_confirm', function() {
+		grunt.task.run('prompt:continue');
 	});
 
 
@@ -579,25 +870,20 @@ module.exports = function(grunt) {
 
 		//Get new version and commit ang tag messages
 		var newVersion		=	grunt.config('newVersion') == 'none' ? '' : semver.inc(currentVersion, grunt.config('newVersion')),
-				promptMessage	= grunt.config('commitMessage') || '',
-				commitMessage,
-				tagMessage;
+				commitMessage	= grunt.config('commitMessage') || 'No message',
+				tagMessage		= grunt.config('tagMessage') || '';
+
 
 		if (newVersion){
-			//Create commitMessage and tagMessage
-			var postMessage = '';
-			if (promptMessage)
-				postMessage += '-m "' + promptMessage + '" ';
-			postMessage += '-m "Released by '+bwr.authors+' ' +todayStr +'"';
-
-			commitMessage = ' -m "Release '  + newVersion + '" ' + postMessage;
-			tagMessage		= ' -m "Version '  + newVersion + '" ' + postMessage;
+			//Create tagMessage
+			var userName = grunt.config('gitinfo').userName || bwr.authors; //bwr.authors is fall-back
+			tagMessage =	' -m "Version '  + newVersion + '"'  +
+										' -m "Released by '+ userName +' (https://github.com/'+userName+') ' +todayStr +'"' +
+										(tagMessage ? ' -m "' + tagMessage + '"' : '')
 
 			//Update bwr
 			bwr.version = newVersion;
 		}
-		else
-			commitMessage = ' -m "' + (promptMessage || '* No message *') +'"';
 
 		//Build application/packages
 		if (grunt.config('build')){
@@ -621,18 +907,26 @@ module.exports = function(grunt) {
 			runCmd('grunt replace:'+(isApplication ? 'dist_html_version' : 'dist_js_version') );
 		}
 
-		//add, commit adn tag
-		writeHeader('Commit all files' + (newVersion ? ' and create new tag="'+newVersion+'"' : ''));
-
 		//git add all
 		runCmd('git add -A');
 
-		//git commit
-		runCmd('git commit' + commitMessage);
+		//commit or amend
+		if (grunt.config('commit') == 'commit'){
+			//commit
+			writeHeader('Commit staged changes to a new snapshot');
+			runCmd('git commit  -m "' + commitMessage + '"');
+		}
+		else {
+			writeHeader('Combine/amend staged changes with the previous commit');
+			runCmd('git commit --amend --no-edit');
+		}
+
 
 		//git tag
-		if (newVersion)
+		if (newVersion){
+			writeHeader('Create new tag="'+newVersion+'"');
 			runCmd('git tag ' + newVersion + tagMessage);
+		}
 
 		//git push (and push tag)
 		writeHeader('Push all branches '+(newVersion ? 'and tags ' : '')+'to GitHub');
@@ -644,7 +938,7 @@ module.exports = function(grunt) {
 
 
 		//Merge "master" into "gh-pages"
-		if (grunt.config('ghpages')){
+		if (haveGhPages){
 			writeHeader('Merge "master" branch into "gh-pages" branch');
 			runCmd('git checkout -B "gh-pages"');
 			runCmd('git merge master');
@@ -658,7 +952,7 @@ module.exports = function(grunt) {
 	//CREATE THE "DEV" AND "PROD" TAST
 	//*********************************************************
 
-	//First create the task _create_dev_links
+	//Create the task _create_dev_links
 	grunt.registerTask('_create_dev_links', function(){
 		function findFiles(ext){
 			//Find all files in src with .ext but excl. .min.ext
@@ -702,6 +996,31 @@ module.exports = function(grunt) {
 			link_css += '  <link  href="../'+cssFile+'" rel="stylesheet">\n';
 		}
 	});
+
+
+	//********************************************************************
+	//Create task "_save_bower_overrides" - copy the original bower.json to _ORIGINAL_bower.jsom and write the new bower.json
+	grunt.registerTask('_save_bower_overrides', function(){
+		copyBowerJsonToORIGINAL();
+		writeFile('bower.json', true, bwr );
+	});
+	//Create task "_restore_bower_json" - restore the original bower.json
+	grunt.registerTask('_restore_bower_json', function(){
+		copyORIGINALToBowerJson()
+	});
+
+/*
+	function copyBowerJsonToORIGINAL(){
+		if (grunt.file.exists(ORIGINALFileName))
+		  grunt.file.delete(ORIGINALFileName);
+		grunt.file.copy('bower.json', ORIGINALFileName );
+	}
+
+	function copyORIGINALToBowerJson(){
+	function writeFile(fileName, isJSON, contents ){
+
+*/
+
 	//********************************************************************
 
 
@@ -721,17 +1040,22 @@ module.exports = function(grunt) {
 
 		tasks.push( isProdTasks ? '_set_process_env_PROD' : '_set_process_env_DEV');
 
-
-
 		//Run "before-commands" (if any)
 		tasks.push( isProdTasks ? '_before_prod' : '_before_dev');
 
-		//ALWAYS CLEAN /temp, AND /temp_dist AND CHECK SYNTAX
+		//ALWAYS CLEAN /temp, AND /temp_dist AND Update bower-components AND CHECK SYNTAX
 		tasks.push(
 			'clean:temp',
 			'clean:temp_dist',
+			'exec:bower_update_dev',	//Update devDependencies bower components
 			'check'
 		);
+
+
+		//If it is a application or prod => save bower.json to _ORIGINAL_bower.json and save bower.json with the new full overrides
+		if (isApplication || isProdTasks){
+		  tasks.push('_save_bower_overrides');
+		}
 
 		//BUILD JS (AND CSS) FROM SRC
 		if (isProdTasks){
@@ -772,7 +1096,7 @@ module.exports = function(grunt) {
 			//Build bower_components.js/css and /images, and /fonts from the bower components
 			tasks.push(
 				'clean:temp',					//clean /temp
-				'exec:bower_update',	//Update all bower components
+				'exec:bower_update',	//Update dependencies bower components
 				'bower',							//Copy all "main" files to /temp
 				'bower_concat'				//Create bower_components.js and bower_components.css in temp_dist
 			);
@@ -848,6 +1172,10 @@ module.exports = function(grunt) {
 		else
 			tasks.push( isApplication ? 'copy:src__dist_files_to_dev': 'copy:src__dist_files_to_demo' );		//Copies alle files in src\_dist_files to dev or demo, excl. '_*.*'
 
+
+		//If it is a application or prod => restore bower.json from _ORIGINAL_bower.json
+		if (isApplication || isProdTasks)
+		  tasks.push('_restore_bower_json');
 
 		if (cleanUp)
 		  tasks.push( 'clean:temp_dist');

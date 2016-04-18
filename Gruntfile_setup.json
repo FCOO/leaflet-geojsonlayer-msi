@@ -1,9 +1,12 @@
 {   
-  "isApplication"								: false,	//true for stand-alone applications. false for packages/plugins
+  "isApplication"								: false,		//true for stand-alone applications. false for packages/plugins
   "haveJavaScript"							: true,		//true if the packages have js-files
   "haveStyleSheet"							: true,		//true if the packages have css and/or scss-files
-	"minimizeBowerComponentsJS"		: false,	//Only for application: Minifies the bower components js-file		
-	"minimizeBowerComponentsCSS"	: false,	//Only for application: Minifies the bower components css-file		
+	"haveGhPages"									: true,		//true if there is a branch "gh-pages" used for demos
+
+	"minimizeBowerComponentsJS"		: true,		//Only for application: Minifies the bower components js-file		
+	"minimizeBowerComponentsCSS"	: true,		//Only for application: Minifies the bower components css-file		
+
 	"beforeProdCmd"								: "",			//Cmd to be run at the start of prod-task. Multi cmd can be seperated by "&"
   "beforeDevCmd"								: "",			//Cmd to be run at the start of dev-task
   "afterProdCmd"								: "",			//Cmd to be run at the end of prod-task
