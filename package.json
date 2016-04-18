@@ -1,13 +1,13 @@
 {
-  "name"		: "leaflet-geojsonlayer-msi",
-  "version"	: "0.0.0",
+  "name": "leaflet-geojsonlayer-msi",
+  "version": "0.2.0",
   "homepage": "https://github.com/FCOO/leaflet-geojsonlayer-msi",
-	"author": "NielsHolt niels@steenbuchholt.dk",
-	"description": "package.json is only use for building the package. see bower.json for more info",
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/FCOO/leaflet-geojsonlayer-msi.git"
-	},
+  "author": "NielsHolt niels@steenbuchholt.dk",
+  "description": "package.json is only use for building the package. see bower.json for more info",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/FCOO/leaflet-geojsonlayer-msi.git"
+  },
   "devDependencies": {
     "getobject": "~0.1.0",
     "grunt-auto-install": "^0.3.0",
