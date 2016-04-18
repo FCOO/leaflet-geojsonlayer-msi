@@ -1,0 +1,22 @@
+/***********************************************
+	leaflet-control-mouseposition.scss, 
+
+	(c) 2016, FCOO
+
+	https://github.com/FCOO/leaflet-control-mouseposition
+	https://github.com/FCOO
+
+
+************************************************/
+.leaflet-container .leaflet-control-mouseposition {
+  background-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0.3125rem #bbb;
+  padding: 0 0.3125rem;
+  margin: 0;
+  color: #333;
+  font: 0.6875rem "Helvetica Neue", Arial, Helvetica, sans-serif;
+  border: 1px solid transparent;
+  cursor: pointer; }
+  .leaflet-container .leaflet-control-mouseposition:hover {
+    border: 1px solid black;
+    background-color: rgba(255, 255, 255, 0.95); }
