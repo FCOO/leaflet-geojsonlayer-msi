@@ -28,23 +28,32 @@
 	};
 
 
-var MsiFeature = L.Class.extend({
+	var MsiFeature = L.Class.extend({
     initialize: function (feature, geoJSON_MSI) {
 			this.feature = feature;
       this.geoJSON_MSI = geoJSON_MSI;
     },
 
-		updatePopup: function () {
+		updatePopup: function ( /*popup*/) {
 			var options				= this.geoJSON_MSI.options,
-					content				= options.popup_template,
-					text					= options.text[ options.language ] || options.text['da'],
+					content				= options.template.popup,
+					text					= options.text,//[ options.language ] || options.text['da'],
+					language			= options.language || 'da',
 					positionList	= [],
 					i, coor,
-					positionContents = '';
+					positionContent = '';
 
-			function insertInContents( text ){
+
+			function translate( text ){
+				var result = {};
 				for (var id in text)
-					content = content.replace('{'+id+'}', text[id]);
+					result[id] = text[id][language];
+				return result;
+			}
+			
+			function insertInContent( text ){
+				for (var id in text)
+			    content = content.replace(new RegExp('{'+id+'}', 'g'), text[id]);
 			}
 
 			//Create list of position(s)
@@ -58,10 +67,10 @@ var MsiFeature = L.Class.extend({
 			text['header_position'] = positionList.length == 1 ? text['header_position'] : text['header_positions'];
 
 			//Insert headers
-			insertInContents( text );
+			insertInContent( translate(text) );
 
 			//Insert data
-			insertInContents( {
+			insertInContent( {
 				'title'		: this.feature.properties.encText,
 				'body'		: this.feature.properties.navWarning,
 				'updated'	: dateAsHTML( this.feature.properties.updated, options.language, options.timezone ),
@@ -71,8 +80,8 @@ var MsiFeature = L.Class.extend({
 
 			//Positions
 			for (i=0; i<positionList.length; i++ )
-				positionContents += (i ? '<br>' : '') + positionList[i].asFormat().join('&nbsp;&nbsp;&nbsp;');
-			insertInContents( { 'points': positionContents });
+				positionContent += (i ? '<br>' : '') + positionList[i].asFormat().join('&nbsp;&nbsp;&nbsp;');
+			insertInContent( { 'points': positionContent });
 	    return content;
     }
 
@@ -100,47 +109,45 @@ var MsiFeature = L.Class.extend({
 		      fillOpacity: 0.2,
 				};
 			},
-			popup_template:
-				'<div class="msi">'+
-					'<h3>{header}</h3>'+
-					'<p>{body}</p><hr/>'+
+			template: {
+				popup:
+					'<div class="msi">'+
+						'<h3>{header}</h3>'+
+						'<p>{body}</p><hr/>'+
 
-					'<h4>{header_time}</h4>'+
-					'<p>{updated}</p><hr/>'+
+						'<h4>{header_time}</h4>'+
+						'<p>{updated}</p><hr/>'+
 
-					'<h4>{header_area}</h4>'+
-					'<p>{mainarea}&nbsp;-&nbsp;{subarea}</p><hr/>'+
+						'<h4>{header_area}</h4>'+
+						'<p>{mainarea}&nbsp;-&nbsp;{subarea}</p><hr/>'+
 
-					'<h4>{header_position}</h4>'+
-					'{points}<hr/>'+
+						'<h4>{header_position}</h4>'+
+						'{points}<hr/>'+
 
-					'<h4>{header_source}</h4>'+
-					'<p>{source_link}</p>'+
-				'</div>',
+						'<h4>{header_source}</h4>'+
+						'<p>{source_link}</p>'+
+					'</div>'
+			},
 
 			text: {
-				da: {
-					'header'					: 'Aktuelle advarsler',
-					'header_time'			: 'Tid',
-					'header_area'			: 'Område',
-					'header_main_area': 'Hovedområde',
-					'header_subarea'	: 'Underområde',
-					'header_position'	: 'Position',
-					'header_positions': 'Positioner',
-					'header_source'		: 'Kilde',
-					'source_link'			: '<a target="_new" href="http://www.soefartsstyrelsen.dk">Søfartsstyrelsen</a>'
-				},
-				en: {
-					'header'					: 'Maritime Safety Information',
-					'header_time'			: 'Time',
-					'header_area'			:	'Area',
-					'header_main_area':	'Main area',
-					'header_subarea'	: 'Subarea',
-					'header_position'	: 'Position',
-					'header_positions': 'Positions',
-					'header_source'		: 'Source',
-					'source_link'			: '<a target="_new" href="http://dma.dk">Danish Maritime Authority</a>'
-				}
+				'header'					: {	da:'Aktuelle advarsler',
+															en:'Maritime Safety Information'},
+				'header_time'			: {	da:'Tid',
+															en:'Time'},
+				'header_area'			: {	da:'Område',
+															en:'Area'},
+				'header_main_area': {	da:'Hovedområde',
+															en:'Main area'},
+				'header_subarea'	: {	da:'Underområde',
+															en:'Subarea'},
+				'header_position'	: {	da:'Position',
+															en:'Position'},
+				'header_positions': {	da:'Positioner',
+															en:'Positions'},
+				'header_source'		: {	da:'Kilde',
+															en:'Source'},
+				'source_link'			: {	da:'<a target="_new" href="http://www.soefartsstyrelsen.dk">Søfartsstyrelsen</a>',
+															'en':'<a target="_new" href="http://dma.dk">Danish Maritime Authority</a>'}
 			}
 	  },
 

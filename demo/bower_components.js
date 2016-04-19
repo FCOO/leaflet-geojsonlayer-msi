@@ -19032,7 +19032,7 @@ L.Map.include({
 
 		//Get the contents from the options.getContent function
 		if (this.options.getContent)
-		  this._content = this.options.getContent.apply(this.options.context);
+		  this._content = this.options.getContent.apply(this.options.context, [this] );
 
 		//Original function/method
     _updateContent.apply(this, arguments);
