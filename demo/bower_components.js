@@ -19079,7 +19079,7 @@ L.Map.include({
 
 
 
-;//! moment.js
+;!function(a,b,c,d,e){"use strict";b.Map.mergeOptions({zoomModernizr:!0}),b.Map.ZoomModernizr=b.Handler.extend({addHooks:function(){this._zoomModernizr(),this._map.on("zoomend",this._zoomModernizr,this)},removeHooks:function(){this._map.off("zoomend",this._zoomModernizr,this)},_zoomModernizr:function(){var c,d=this._map,e=d.getZoom()||0,f=d.getMinZoom()||0,g=d.getMaxZoom(),h=a(d.getContainer());for(g===1/0&&(g=b.TileLayer.prototype.options.maxZoom),c=f;g>=c;c++)h.toggleClass("leaflet-zoom-"+c,c==e),h.toggleClass("leaflet-zoom-"+c+"-up",e>=c),h.toggleClass("leaflet-zoom-"+c+"-down",c>=e),h.toggleClass("no-leaflet-zoom-"+c,c!=e),h.toggleClass("no-leaflet-zoom-"+c+"-up",c>e),h.toggleClass("no-leaflet-zoom-"+c+"-down",e>c)}}),b.Map.addInitHook("addHandler","zoomModernizr",b.Map.ZoomModernizr)}(jQuery,L,this,document);;//! moment.js
 //! version : 2.13.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT

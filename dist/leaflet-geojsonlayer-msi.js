@@ -10,9 +10,7 @@
 ;(function ($, L, window, document, undefined) {
 	"use strict";
 
-  var msiDivIcon = L.divIcon({className: 'msi-marker', iconSize:[20,20], iconAnchor:[11,11]});
-
-  //var latlngFormat = new window.LatLngFormat( 1 ); //1=Degrees Decimal minutes: N65°30.258'
+  var msiDivIcon = L.divIcon({className: 'msi-marker', iconSize:null, iconAnchor:null});
 
   var dateAsHTML = function( date, language, tz ){
 	  var dateFormat = 'DD-MMM-YY HH:mm',
