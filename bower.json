@@ -1,10 +1,10 @@
 {
   "name": "leaflet-geojsonlayer-msi",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "homepage": "https://github.com/FCOO/leaflet-geojsonlayer-msi",
   "authors": [
     "Jesper Larsen jla@fcoo.dk",
-    "Niels Holt nho@fco.dk"
+    "Niels Holt nho@fcoo.dk"
   ],
   "description": "",
   "main": [
