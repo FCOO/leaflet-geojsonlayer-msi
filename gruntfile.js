@@ -284,7 +284,7 @@ module.exports = function(grunt) {
 
 		//** concat **
     concat: {
-      options: { separator: ';' },
+      options: { separator: grunt.util.linefeed },
 			temp_to_temp_dist_srcjs:			{	files: { 'temp_dist/src.js'			: ['temp/**/*.js']				} },
 			temp_to_temp_dist_srccss:			{	files: { 'temp_dist/src.css'		: ['temp/**/*.css']			} },
 			temp_to_temp_dist_srcminjs:		{ files: { 'temp_dist/src.min.js'	: ['temp/**/*.min.js']	} },
