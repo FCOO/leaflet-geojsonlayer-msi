@@ -1,5 +1,5 @@
 /*!
- * jQuery JavaScript Library v2.2.3
+ * jQuery JavaScript Library v2.2.4
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -9,7 +9,7 @@
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2016-04-05T19:26Z
+ * Date: 2016-05-20T17:23Z
  */
 
 (function( global, factory ) {
@@ -65,7 +65,7 @@ var support = {};
 
 
 var
-	version = "2.2.3",
+	version = "2.2.4",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -5006,13 +5006,14 @@ jQuery.Event.prototype = {
 	isDefaultPrevented: returnFalse,
 	isPropagationStopped: returnFalse,
 	isImmediatePropagationStopped: returnFalse,
+	isSimulated: false,
 
 	preventDefault: function() {
 		var e = this.originalEvent;
 
 		this.isDefaultPrevented = returnTrue;
 
-		if ( e ) {
+		if ( e && !this.isSimulated ) {
 			e.preventDefault();
 		}
 	},
@@ -5021,7 +5022,7 @@ jQuery.Event.prototype = {
 
 		this.isPropagationStopped = returnTrue;
 
-		if ( e ) {
+		if ( e && !this.isSimulated ) {
 			e.stopPropagation();
 		}
 	},
@@ -5030,7 +5031,7 @@ jQuery.Event.prototype = {
 
 		this.isImmediatePropagationStopped = returnTrue;
 
-		if ( e ) {
+		if ( e && !this.isSimulated ) {
 			e.stopImmediatePropagation();
 		}
 
@@ -5960,19 +5961,6 @@ function getWidthOrHeight( elem, name, extra ) {
 		val = name === "width" ? elem.offsetWidth : elem.offsetHeight,
 		styles = getStyles( elem ),
 		isBorderBox = jQuery.css( elem, "boxSizing", false, styles ) === "border-box";
-
-	// Support: IE11 only
-	// In IE 11 fullscreen elements inside of an iframe have
-	// 100x too small dimensions (gh-1764).
-	if ( document.msFullscreenElement && window.top !== window ) {
-
-		// Support: IE11 only
-		// Running getBoundingClientRect on a disconnected node
-		// in IE throws an error.
-		if ( elem.getClientRects().length ) {
-			val = Math.round( elem.getBoundingClientRect()[ name ] * 100 );
-		}
-	}
 
 	// Some non-html elements return undefined for offsetWidth, so check for null/undefined
 	// svg - https://bugzilla.mozilla.org/show_bug.cgi?id=649285
@@ -7864,6 +7852,7 @@ jQuery.extend( jQuery.event, {
 	},
 
 	// Piggyback on a donor event to simulate a different one
+	// Used only for `focus(in | out)` events
 	simulate: function( type, elem, event ) {
 		var e = jQuery.extend(
 			new jQuery.Event(),
@@ -7871,27 +7860,10 @@ jQuery.extend( jQuery.event, {
 			{
 				type: type,
 				isSimulated: true
-
-				// Previously, `originalEvent: {}` was set here, so stopPropagation call
-				// would not be triggered on donor event, since in our own
-				// jQuery.event.stopPropagation function we had a check for existence of
-				// originalEvent.stopPropagation method, so, consequently it would be a noop.
-				//
-				// But now, this "simulate" function is used only for events
-				// for which stopPropagation() is noop, so there is no need for that anymore.
-				//
-				// For the 1.x branch though, guard for "click" and "submit"
-				// events is still used, but was moved to jQuery.event.stopPropagation function
-				// because `originalEvent` should point to the original event for the constancy
-				// with other events and for more focused logic
 			}
 		);
 
 		jQuery.event.trigger( e, null, elem );
-
-		if ( e.isDefaultPrevented() ) {
-			event.preventDefault();
-		}
 	}
 
 } );
@@ -9840,7 +9812,269 @@ if ( !noGlobal ) {
 
 return jQuery;
 }));
-;!function(a,b,c,d){"use strict";function e(a){var b={};return b.hemisphere=a>=0?1:-1,a=Math.abs(a),b.degrees=Math.floor(a),b.degreesDecimal=Math.min(9999,Math.round(1e4*(a-b.degrees))),a=60*a%60,b.minutes=Math.floor(a),b.minutesDecimal=Math.min(999,Math.round(1e3*(a-b.minutes))),a=60*a%60,b.seconds=Math.floor(a),b.secondsDecimal=Math.min(9,Math.floor(10*(a-b.seconds))),b}function f(a){this.options={decimalSeparator:b.LATLNGFORMAT_DEFAULTDECIMALSEPARATOR,degreeChar:"&#176;"},this.setFormat(a)}b.LATLNGFORMAT_DMSS=0,b.LATLNGFORMAT_DMM=1,b.LATLNGFORMAT_DD=2;var g=1.1;g=g.toLocaleString(),b.LATLNGFORMAT_DEFAULTDECIMALSEPARATOR=g.indexOf(".")>-1?".":g.indexOf(",")>-1?",":".",b.LatLngFormat=f,b.LatLngFormat.prototype={setFormat:function(a){this.options.formatId=a,this._updateFormat()},setDecimalSeparator:function(a){this.options.decimalSeparator=a,this._updateFormat()},valid:function(a){return Array.isArray(a)?[this.validLat(a[0]),this.validLng(a[1])]:[]},validLat:function(a){return this._valid(0,a)},validLng:function(a){return this._valid(1,a)},textToDegrees:function(a){return Array.isArray(a)?[this.textToDegreesLat(a[0]),this.textToDegreesLng(a[1])]:[]},textToDegreesLat:function(a){return this._textToDegrees(0,a)},textToDegreesLng:function(a){return this._textToDegrees(1,a)},asText:function(a,b){return Array.isArray(a)?[this.asTextLat(a[0],b),this.asTextLng(a[1],b)]:[]},asTextLat:function(a,b){return this._asText(0,a,b)},asTextLng:function(a,b){return this._asText(1,a,b)},convert:function(a,b){return Array.isArray(a)?[this.convertLat(a[0],b),this.convertLng(a[1],b)]:[]},convertLat:function(a,b){return this._convert(0,a,b)},convertLng:function(a,b){return this._convert(1,a,b)},_valid:function(a,b){return new RegExp("^(?:"+this.options.regexp[a]+")$").test(b)},_textToDegrees:function(a,b){function c(a){var b=a.toString().length;return a/Math.pow(10,b)}if(b=b.toUpperCase().trim(),""===b||!this._valid(a,b))return null;var d=1;(b.indexOf("S")>-1||b.indexOf("W")>-1)&&(d=-1);var e,f,g=b.split(/\D/),h=0,i=0;for(e=0;e<g.length;e++)if(f=parseInt(g[e]),!isNaN(f)){switch(this.options.convertMask[i]){case"DDD":h+=f;break;case"MM":h+=f/60;break;case"mmm":h+=c(f)/60;break;case"s":h+=c(f)/3600;break;case"SS":h+=f/3600;break;case"dddd":h+=c(f)}if(i++,i>=this.options.convertMask.length)break}return d*h},_asText:function(a,b,c){function d(a,b){for(var c=""+a;c.length<b;)c="0"+c;return c}function f(a,b){for(var c=""+a;c.length<b;)c+="0";return c}if("number"!=typeof b)return"";var g=e(b),h=(c?this.options.editMask:this.options.displayMask).replace("H",a?1==g.hemisphere?"E":"W":1==g.hemisphere?"N":"S");return h=h.replace(/DDD/,g.degrees),h=h.replace(/dddd/,f(g.degreesDecimal,4)),h=h.replace(/MM/,d(g.minutes,2)),h=h.replace(/mmm/,f(g.minutesDecimal,3)),h=h.replace(/SS/,d(g.seconds,2)),h=h.replace(/s/,d(g.secondsDecimal,1))},_convert:function(a,b,c){if(c&&c._valid(a,b)){var d=c._textToDegrees(a,b);return this._asText(a,d,!0)}return b},_updateFormat:function(){var c={anySpace:"\\s*",hemisphereLat:"([nNsS])?",hemisphereLong:"([eEwW])?",DD:"((0?[0-9])|[1-8][0-9])",DDD:"((\\d?\\d)|1[0-7][0-9])",MM:"\\s((0?[0-9])|[1-5][0-9])"};c.SS=c.MM,c.seperator=c.anySpace+"[\\s\\.,]"+c.anySpace,c.dddd="("+c.seperator+"\\d{1,4})?",c.MMmmm="("+c.MM+"("+c.seperator+"\\d{1,3})?)?",c.MMSSs="("+c.MM+"("+c.SS+"("+c.seperator+"\\d{1,1})?)?)?";var d=this.options.decimalSeparator,e=this.options.degreeChar,f={};switch(this.options.formatId){case b.LATLNGFORMAT_DMSS:f={displayMask:"DDD"+e+"MM'SS"+d+'s"H',editMask:"DDD MM SS"+d+"sH",convertMask:["DDD","MM","SS","s"],regexp:[c.anySpace+"(90|"+c.DD+c.anySpace+c.MMSSs+")"+c.anySpace+c.hemisphereLat+c.anySpace,c.anySpace+"(180|"+c.DDD+c.anySpace+c.MMSSs+")"+c.anySpace+c.hemisphereLong+c.anySpace],placeholder:["89 59 59"+d+"9N","179 59 59"+d+"9E"]};break;case b.LATLNGFORMAT_DMM:f={displayMask:"DDD"+e+"MM"+d+"mmm'H",editMask:"DDD MM"+d+"mmmH",convertMask:["DDD","MM","mmm"],regexp:[c.anySpace+"(90|"+c.DD+c.anySpace+c.MMmmm+")"+c.anySpace+c.hemisphereLat+c.anySpace,c.anySpace+"(180|"+c.DDD+c.anySpace+c.MMmmm+")"+c.anySpace+c.hemisphereLong+c.anySpace],placeholder:["89 59"+d+"999N","179 59"+d+"999E"]};break;case b.LATLNGFORMAT_DD:f={displayMask:"DDD"+d+"dddd"+e+"H",editMask:"DDD"+d+"ddddH",convertMask:["DDD","dddd"],regexp:[c.anySpace+"(90|"+c.DD+c.anySpace+c.dddd+")"+c.anySpace+c.hemisphereLat+c.anySpace,c.anySpace+"(180|"+c.DDD+c.anySpace+c.dddd+")"+c.anySpace+c.hemisphereLong+c.anySpace],placeholder:["89.9999N","179.9999E"]}}a.extend(this.options,f)}}}(jQuery,this,document);;/*
+
+;
+/****************************************************************************
+latlng-format, a class to validate, format, and transform positions (eq. leaflet LatLng)
+
+	(c) 2015, FCOO
+
+	https://github.com/fcoo/latlng-format
+	https://github.com/fcoo
+
+****************************************************************************/
+
+;(function ($, window, document, undefined) {
+	"use strict";
+
+	//Options for the tree posible formats. Placed in seperate namespace
+	window.LATLNGFORMAT_DMSS	= 0; //Degrees Minutes Seconds Decimal Seconds:	N65d30'15.3"  d='degree sign'
+	window.LATLNGFORMAT_DMM		= 1; //Degrees Decimal minutes								:	N65d30.258'
+	window.LATLNGFORMAT_DD		= 2; //Decimal degrees												: N41.1234d
+
+	//Determinate the decimal separator. Only "." or "," are used even that Windows (apparantly) accepts up to tree chars
+	var n = 1.1;
+	n = n.toLocaleString();
+	window.LATLNGFORMAT_DEFAULTDECIMALSEPARATOR =
+		n.indexOf('.') > -1 ? '.' :
+		n.indexOf(',') > -1 ? ',' :
+		'.';
+
+	// _split - Input: position (number) Return: {hemisphere, degrees, degreesDecimal, minutes, minutesDecimal, seconds, secondsDecimal}
+	function _split( position ){
+		var result = {};
+		result.hemisphere = position >= 0 ? +1 : -1;
+		position = Math.abs(position);
+		result.degrees = Math.floor(position);
+		result.degreesDecimal = Math.min(9999, Math.round((position - result.degrees)*10000) );
+
+		position = position*60 % 60; //Minutes
+		result.minutes = Math.floor(position);
+		result.minutesDecimal = Math.min( 999, Math.round((position - result.minutes)*1000) );
+
+		position = position*60 % 60; //seconds
+		result.seconds = Math.floor(position);
+		result.secondsDecimal = Math.min( 9, Math.floor/*round*/((position - result.seconds)*10) );
+
+
+		return result;
+	}
+
+	/**********************************************************************
+	LatLngFormat( formatId )
+	**********************************************************************/
+	function LatLngFormat( formatId ){
+		this.options = {
+			decimalSeparator: window.LATLNGFORMAT_DEFAULTDECIMALSEPARATOR,
+			degreeChar			: '&#176;' //or '&deg;'
+		};
+
+		this.setFormat( formatId );
+	}
+
+  // expose access to the constructor
+  window.LatLngFormat = LatLngFormat;
+
+
+	//Extend the prototype
+	window.LatLngFormat.prototype = {
+
+		//**********************************************************
+		//setFormat
+		setFormat: function( formatId ){
+			this.options.formatId = formatId;
+			this._updateFormat();
+		},
+
+		//**********************************************************
+		//setDecimalSeparator
+		setDecimalSeparator: function( decimalSeparator ){
+			this.options.decimalSeparator = decimalSeparator;
+			this._updateFormat();
+		},
+
+		//**********************************************************
+		//valid - Return true if the input is a valid position
+		valid		: function( latLng ){ return Array.isArray(latLng) ? [ this.validLat(latLng[0]), this.validLng(latLng[1]) ] : []; },
+		validLat: function( lat ){ return this._valid( 0, lat ); },
+		validLng: function( lng ){ return this._valid( 1, lng ); },
+
+		//**********************************************************
+		//textToDegrees - Converts value (string masked as editMask) to decimal degrees.
+		textToDegrees   : function( values ){ return Array.isArray(values) ? [ this.textToDegreesLat(values[0]), this.textToDegreesLng(values[1]) ] : []; },
+		textToDegreesLat: function( value ){ return this._textToDegrees( 0, value ); },
+		textToDegreesLng: function( value ){ return this._textToDegrees( 1, value ); },
+
+		//**********************************************************
+		//asText - Converts number value (signed decimal degrees) to a string, using this.displayMask or this.editMask
+		asText   : function( latLng, useEditMask ){ return Array.isArray(latLng) ? [ this.asTextLat(latLng[0], useEditMask), this.asTextLng(latLng[1], useEditMask) ] : []; },
+		asTextLat: function( lat, useEditMask ){ return this._asText( 0, lat, useEditMask ); },
+		asTextLng: function( lng, useEditMask ){ return this._asText( 1, lng, useEditMask ); },
+
+		//**********************************************************
+		//convert - If value is valid in orgLatlngFormat => convert it to this' format and return it as text-string, else return original input-string
+		convert   : function( values, orgLatLngFormat ){ return Array.isArray(values) ? [ this.convertLat(values[0], orgLatLngFormat), this.convertLng(values[1], orgLatLngFormat) ] : []; },
+		convertLat: function( value, orgLatLngFormat ){ return this._convert( 0, value, orgLatLngFormat ); },
+		convertLng: function( value, orgLatLngFormat ){ return this._convert( 1, value, orgLatLngFormat ); },
+
+
+
+		//**********************************************************
+		//_valid - Return true if the positionInput is a valid position
+		_valid: function _valid(regexpIndex, value){
+			//The regexp is prefixed with ^(?: and suffixed with )$ to make it full-match-only.
+			return (new RegExp( '^(?:' + this.options.regexp[regexpIndex] + ')$' )).test(value);
+		},
+
+		//**********************************************************
+		//_ textToDegrees - Converts value (string masked as editMask) to decimal degrees.
+		//Using convertMask to convert the different part of the text. Any space is ignored
+		_textToDegrees: function _textToDegrees(regexpIndex,  value){
+			//toDecimal - Convert a integer value v to a decimal. Eq	toDecimal(89)	= 0.89, toDecimal(9) = 0.9, toDecimal(1234)	= 0.1234
+			function toDecimal(v) {
+				var l = v.toString().length;
+				return v / Math.pow(10, l);
+			}
+
+			value = value.toUpperCase().trim();
+			if ((value === '') || !this._valid(regexpIndex,  value))
+				return null;
+
+			//Convert N or E to +1 and S or W to -1
+			var sign = 1;
+			if ( (value.indexOf('S') > -1) || (value.indexOf('W') > -1) )
+				sign = -1;
+
+			var split = value.split(/\D/),
+					result = 0,
+					convertMaskIndex = 0,
+					i, nextValue;
+			for (i=0; i<split.length; i++ ){
+				nextValue = parseInt(split[i]);
+				if (!isNaN(nextValue)){
+					switch (this.options.convertMask[convertMaskIndex]){
+					  case 'DDD'	: result = result + nextValue;									break;
+						case 'MM'		: result = result + nextValue/60;								break;
+						case 'mmm'	: result = result + toDecimal(nextValue)/60;		break;
+						case 's'		: result = result + toDecimal(nextValue)/3600;	break;
+					  case 'SS'		: result = result + nextValue/3600;							break;
+						case 'dddd'	: result = result + toDecimal(nextValue);				break;
+					}
+					convertMaskIndex++;
+					if (convertMaskIndex >= this.options.convertMask.length)
+						break;
+				}
+			}
+			return sign*result;
+		},
+
+		//**********************************************************
+		//_asText - Converts numberValue (signed decimal degrees) to a string, using this.displayMask or this.editMask
+		_asText: function _asText(regexpIndex, numberValue, useEditMask){
+			function trim(value, lgd)		{var result = ''+value; while (result.length < lgd) result = '0'+result; return result; }
+			function append(value, lgd)	{var result = ''+value;	while (result.length < lgd) result = result+'0'; return result; }
+
+			if (typeof numberValue != 'number')
+				return '';
+
+			var parts = _split(numberValue);
+			var result = (useEditMask ? this.options.editMask : this.options.displayMask).replace('H', regexpIndex ? (parts.hemisphere == 1 ? 'E' : 'W') : (parts.hemisphere == 1 ? 'N' : 'S') );
+			result = result.replace(/DDD/	, parts.degrees										);
+			result = result.replace(/dddd/, append(parts.degreesDecimal,4)	);
+			result = result.replace(/MM/	, trim(parts.minutes, 2)					);
+			result = result.replace(/mmm/	, append(parts.minutesDecimal, 3)	);
+			result = result.replace(/SS/	, trim(parts.seconds, 2)					);
+			result = result.replace(/s/		, trim(parts.secondsDecimal, 1)		);
+			return result;
+		},
+
+
+		//**********************************************************
+		//_convert - If value is valid in orgLatlngFormat => convert it to this' format and return it as text-string, else return original input-string
+		_convert: function( regexpIndex, value, orgLatLngFormat){
+			if (orgLatLngFormat && orgLatLngFormat._valid( regexpIndex, value )){
+				var numberValue = orgLatLngFormat._textToDegrees( regexpIndex, value );
+				return this._asText( regexpIndex, numberValue, true/*useEditMask*/);
+			}
+			return value;
+		},
+
+
+		//**********************************************************
+		//_updateFormat - Create editMask,convertMask, regexp, placeholder in options based on options.formatId and options.decimalSeparator
+		_updateFormat: function(){
+
+			/*********************************************************
+			Regular expressions for different type of position input
+			The regexp are 'build' using regexp for the sub-parts:
+				H=Hemisphere				: [n,N,s,S]
+				DD=Degrees					:	0-9, 00-09, 10-89
+				dddd=Degrees decimal: 0-9999
+				MM=Minutes					: 0-9, 00-09, 10-59
+				SS=Seconds					: 0-59
+				.=seperator					: blank, "." or ","
+				mmm=decimal min			:	0-999
+			*********************************************************/
+			var _regexp = {
+				anySpace			: '\\s*',
+				hemisphereLat	: '([nNsS])?',	//H=Hemisphere  : [n,N,s,S] (optional,
+				hemisphereLong:	'([eEwW])?',	//H=Hemisphere : [e,E,w,W] (optional,
+				DD						: '((0?[0-9])|[1-8][0-9])',		//DD=Degrees 0-89		:	0-9, 00-09 or 10-89
+				DDD						: '((\\d?\\d)|1[0-7][0-9])',	//DDD=Degrees 0-179	:	0-9, 00-99 or 100-179
+				MM						: '\\s' + '((0?[0-9])|[1-5][0-9])',	//MM=Minutes: 0-9, 00-09 or 10-59 (allways with a seperator in front)
+			};
+			_regexp.SS				= _regexp.MM;
+			_regexp.seperator	= _regexp.anySpace + '[\\s\\.,]' + _regexp.anySpace;	//seperator: blank, "." or ",". Allow any number of spac,
+			_regexp.dddd			= '(' + _regexp.seperator + '\\d{1,4}' + ')?';				//dddd=decimal degrees (0-9999) optional
+			_regexp.MMmmm			=	'(' + _regexp.MM + '(' +	_regexp.seperator +	'\\d{1,3}' + ')?' + ')?';	//MMmmm=Minutes and Decimal minutes = [MM[0-999]]
+			_regexp.MMSSs			=	'(' +	_regexp.MM + '(' + _regexp.SS + '(' +	_regexp.seperator +	'\\d{1,1}' + ')?' + ')?' + ')?'; //MMSSss= Minutes Second and Decimal Seconds = [MM[ SS[0-99]]]
+
+			var dS = this.options.decimalSeparator,
+					dC = this.options.degreeChar,
+					newOptions = {};
+
+			switch (this.options.formatId){
+			  case window.LATLNGFORMAT_DMSS:
+					newOptions =	{ //Degrees Minutes Seconds (N41d25'01")
+						displayMask	:	"DDD"+dC+"MM'SS"+dS+"s\"H",
+						editMask		:	"DDD MM SS"+dS+"sH",
+						convertMask	: ['DDD', 'MM', 'SS', 's'],
+						regexp			:	[	_regexp.anySpace + '(90|'		+ _regexp.DD	+ _regexp.anySpace + _regexp.MMSSs	+	')'	+ _regexp.anySpace + _regexp.hemisphereLat	+ _regexp.anySpace,
+														_regexp.anySpace + '(180|'	+	_regexp.DDD	+ _regexp.anySpace + _regexp.MMSSs	+ ')'	+ _regexp.anySpace + _regexp.hemisphereLong	+ _regexp.anySpace		],
+						placeholder	: ["89 59 59"+dS+"9N", "179 59 59"+dS+"9E"],
+					};
+					break;
+
+				case 	window.LATLNGFORMAT_DMM:
+					newOptions = { //Degrees Decimal minutes (N41d25.123')
+						displayMask	:	"DDD"+dC+"MM"+dS+"mmm'H",
+						editMask		:	"DDD MM"+dS+"mmmH",
+						convertMask	: ['DDD', 'MM', 'mmm'],
+						regexp			:	[ _regexp.anySpace + '(90|'		+ _regexp.DD	+ _regexp.anySpace + _regexp.MMmmm + ')' + _regexp.anySpace + _regexp.hemisphereLat	+ _regexp.anySpace,
+														_regexp.anySpace + '(180|'	+	_regexp.DDD	+ _regexp.anySpace + _regexp.MMmmm + ')' + _regexp.anySpace + _regexp.hemisphereLong	+ _regexp.anySpace	],
+						placeholder	: ["89 59"+dS+"999N", "179 59"+dS+"999E"],
+					};
+					break;
+
+				case 	window.LATLNGFORMAT_DD :
+					newOptions = { //Decimal degrees (N41.1234d)
+						displayMask	:	"DDD"+dS+"dddd"+dC+"H",
+						editMask		:	"DDD"+dS+"ddddH",
+						convertMask	: ['DDD', 'dddd'],
+						regexp			:	[ _regexp.anySpace + '(90|'		+ _regexp.DD	+ _regexp.anySpace	+ _regexp.dddd + ')' + _regexp.anySpace + _regexp.hemisphereLat		+ _regexp.anySpace,
+														_regexp.anySpace + '(180|'	+	_regexp.DDD	+ _regexp.anySpace	+ _regexp.dddd + ')' + _regexp.anySpace + _regexp.hemisphereLong	+ _regexp.anySpace	],
+						placeholder	: ["89.9999N", "179.9999E"],
+					};
+					break;
+			}
+
+			$.extend( this.options, newOptions );
+		}
+	};
+
+}(jQuery, this, document));
+;
+/*
  Leaflet, a JavaScript library for mobile-friendly interactive maps. http://leafletjs.com
  (c) 2010-2013, Vladimir Agafonkin
  (c) 2010-2011, CloudMade
@@ -19007,7 +19241,56 @@ L.Map.include({
 });
 
 
-}(window, document));;!function(a,b,c,d){"use strict";a.extend(a.LatLng,{FORMAT_DMSS:b.LATLNGFORMAT_DMSS,FORMAT_SMM:b.LATLNGFORMAT_DMM,FORMAT_DD:b.LATLNGFORMAT_DD,format:new b.LatLngFormat(b.LATLNGFORMAT_DMSS),setFormat:function(b,c){a.LatLng.format.setFormat(b),c&&c.fireEvent("latlngformatchange",{format:this.format})},changeFormat:function(a){this.setFormat((this.format.options.formatId+1)%(this.FORMAT_DD+1),a)}}),a.extend(a.LatLng.prototype,{latAsFormat:function(){return a.LatLng.format.asTextLat(this.lat)},lngAsFormat:function(){return a.LatLng.format.asTextLng(this.lng)},asFormat:function(){return a.LatLng.format.asText([this.lat,this.lng])}})}(L,this,document);;/****************************************************************************
+}(window, document));
+;
+/****************************************************************************
+	leaflet-latlng-format.js,
+
+	(c) 2016, FCOO
+
+	https://github.com/FCOO/leaflet-latlng-format
+	https://github.com/FCOO
+
+****************************************************************************/
+;(function (L, window, document, undefined) {
+	"use strict";
+
+
+	//Extend L.LatLng
+	L.extend(L.LatLng, {
+		//Const to define differnet formats
+		FORMAT_DMSS	: window.LATLNGFORMAT_DMSS, //Degrees Minutes Seconds Decimal Seconds	:	N65d30'15.3"  d='degree sign'
+		FORMAT_SMM	: window.LATLNGFORMAT_DMM,	//Degrees Decimal minutes									:	N65d30.258'
+		FORMAT_DD		: window.LATLNGFORMAT_DD,		//Decimal degrees													: N41.1234d
+		format			: new window.LatLngFormat( window.LATLNGFORMAT_DMSS ),
+		setFormat		: function( formatId, map ){ 
+										L.LatLng.format.setFormat( formatId );
+										if (map)
+										  map.fireEvent('latlngformatchange', { format: this.format } );
+									},
+		changeFormat: function( map ){ 
+										this.setFormat( (this.format.options.formatId + 1) % (this.FORMAT_DD + 1), map ); 
+									}
+	});
+
+
+
+
+	//Extend the prototype of L.LatLng
+	L.extend( L.LatLng.prototype, {
+		latAsFormat	: function(){ return L.LatLng.format.asTextLat( this.lat ); },
+		lngAsFormat	: function(){ return L.LatLng.format.asTextLng( this.lng ); },
+		asFormat		: function(){ return L.LatLng.format.asText( [this.lat, this.lng] ); }
+
+	});
+
+}(L, this, document));
+
+
+
+
+;
+/****************************************************************************
 	leaflet-popup-extensions.js,
 
 	(c) 2016, FCOO
@@ -19041,19 +19324,31 @@ L.Map.include({
 
 
 
-	//Overwrite Popup._getEvents to add the map-events listed in options.updateOnMapEvents
-	L.Popup.prototype._getEvents = function (_getEvents) {
-		return function () {
-		//Original function/method
-		var events = _getEvents.apply(this, arguments);
+	//Overwrite Popup._getEvents (leaflet version <= 0.7.7) and
+	//Popup.getEvents (leaflet version >= 1.0.0) to add the
+	//map-events listed in options.updateOnMapEvents
+	function newGetEvents( originalGetEvents ) {
+			return function () {
+			//Original function/method
+			var events = originalGetEvents.apply(this, arguments);
 
-		//Add the events the fire update
-		if (this.options.updateOnMapEvents)
-		  events[this.options.updateOnMapEvents] = this._updateContent;
+			//Add the events the fire update
+			if (this.options.updateOnMapEvents){
+				var updateOnMapEventList = this.options.updateOnMapEvents.split(',').join(' ').split(' ');
+				for (var i=0; i<updateOnMapEventList.length; i++ )
+					 events[updateOnMapEventList[i]] = this._updateContent;
+			}
+			return events;
+		};
+	}
 
-		return events;
-	}} (L.Popup.prototype._getEvents);
+	//Verision <= 0.7.7
+	if (L.Popup.prototype._getEvents)
+		L.Popup.prototype._getEvents = newGetEvents( L.Popup.prototype._getEvents );
 
+	//Verision >= 1.0.0
+	if (L.Popup.prototype.getEvents)
+		L.Popup.prototype.getEvents = newGetEvents( L.Popup.prototype.getEvents );
 
 
 	//OR/AND extend a prototype-method (METHOD) of a leaflet {CLASS}
@@ -19079,7 +19374,67 @@ L.Map.include({
 
 
 
-;!function(a,b,c,d,e){"use strict";b.Map.mergeOptions({zoomModernizr:!0}),b.Map.ZoomModernizr=b.Handler.extend({addHooks:function(){this._zoomModernizr(),this._map.on("zoomend",this._zoomModernizr,this)},removeHooks:function(){this._map.off("zoomend",this._zoomModernizr,this)},_zoomModernizr:function(){var c,d=this._map,e=d.getZoom()||0,f=d.getMinZoom()||0,g=d.getMaxZoom(),h=a(d.getContainer());for(g===1/0&&(g=b.TileLayer.prototype.options.maxZoom),c=f;g>=c;c++)h.toggleClass("leaflet-zoom-"+c,c==e),h.toggleClass("leaflet-zoom-"+c+"-up",e>=c),h.toggleClass("leaflet-zoom-"+c+"-down",c>=e),h.toggleClass("no-leaflet-zoom-"+c,c!=e),h.toggleClass("no-leaflet-zoom-"+c+"-up",c>e),h.toggleClass("no-leaflet-zoom-"+c+"-down",e>c)}}),b.Map.addInitHook("addHandler","zoomModernizr",b.Map.ZoomModernizr)}(jQuery,L,this,document);;//! moment.js
+
+;
+/****************************************************************************
+	leaflet-zoom-modernizr.js,
+
+	(c) 2016, FCOO
+
+	https://github.com/FCOO/leaflet-zoom-modernizr
+	https://github.com/FCOO
+
+****************************************************************************/
+;(function ($, L, window, document, undefined) {
+	"use strict";
+
+	L.Map.mergeOptions({
+		zoomModernizr: true
+	});
+
+	L.Map.ZoomModernizr = L.Handler.extend({
+		addHooks: function () {
+			this._zoomModernizr();
+	    this._map.on('zoomend', this._zoomModernizr, this);
+		},
+
+	  removeHooks: function () {
+		  this._map.off('zoomend', this._zoomModernizr, this);
+	  },
+
+	  _zoomModernizr: function ( /*e*/ ) {
+			var map					= this._map,
+					zoom				= map.getZoom() || 0,
+					minZoom			= map.getMinZoom() || 0,
+					maxZoom			= map.getMaxZoom(),
+					$container	= $(map.getContainer()),
+					i;
+
+			if (maxZoom === Infinity)
+				maxZoom = L.TileLayer.prototype.options.maxZoom;
+
+			for (i=minZoom; i<=maxZoom; i++ ){
+				$container.toggleClass( 'leaflet-zoom-' + i						, i == zoom	);
+				$container.toggleClass( 'leaflet-zoom-' + i + '-up'		,	i <= zoom	);
+				$container.toggleClass( 'leaflet-zoom-' + i + '-down'	,	i >= zoom	);
+
+				$container.toggleClass( 'no-leaflet-zoom-' + i						, i != zoom	);
+				$container.toggleClass( 'no-leaflet-zoom-' + i + '-up'		,	i > zoom	);
+				$container.toggleClass( 'no-leaflet-zoom-' + i + '-down'	,	i < zoom	);
+			}
+	  }
+	});
+
+	L.Map.addInitHook('addHandler', 'zoomModernizr', L.Map.ZoomModernizr);
+
+
+}(jQuery, L, this, document));
+
+
+
+
+;
+//! moment.js
 //! version : 2.13.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT

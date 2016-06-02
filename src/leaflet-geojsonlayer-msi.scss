@@ -46,8 +46,9 @@
 	$size-max: 20px;
 	$size-min: 16px;
 
-	$color			: #e2007a;
-	$color-hover: darken($color, 20%);
+	$color				: #e2007a;
+	$color-hover	: black;//darken($color, 20%);
+	$border-thick	: 2px;
 
 	$zoom-break-max: 10;
 	$zoom-break-min: 7;
@@ -57,13 +58,7 @@
 
 	border				: 1px solid $color;
 	border-radius	: 50%;
-
 	background-color: rgba(255,255,255,0.2);
-	&:hover { 	
-		border-color		: $color-hover;
-//		box-shadow			: 0px 0px 0px 1px $color-hover;	
-		background-color: rgba(255,255,255,0.7); 
-	}
 
 	margin	: 0;
 	padding	: 0;
@@ -73,22 +68,30 @@
 	font-family		: Arial;
   text-align		: center;	
 
+	&:hover { 	
+		color						: $color-hover;
+		border-color		: $color-hover;
+		background-color: rgba(255,255,255,12);//0.7); 
+		z-index					: 99999 !important;
+	}
+
 	
 	
 	//Style for zoom <= $zoom-break-min
 	@include leaflet-zoom-size( 10 /*$max-size*/, $zoom-break-min /*$max-zoom*/);
 
+	//Style for zoom <= $zoom-break-min = small circles without 'MSI'
 	.leaflet-zoom-#{$zoom-break-min}-down &:hover {
-		box-shadow: 0px 0px 0px 1px $color-hover;	
+		box-shadow: 0px 0px 0px 1px $color-hover;
 	}
 
 
-	//Style for zoom > $zoom-break-min
+	//Style for zoom > $zoom-break-min = All circles with 'MSI'
 	.leaflet-zoom-#{$zoom-break-min + 1}-up & {
-		box-shadow: 0px 0px 0px 1px $color;	
+		border: $border-thick solid $color;
 
 		&:hover {
-			box-shadow: 0px 0px 0px 2px $color-hover;	
+			border: $border-thick solid $color-hover;
 		}
 
 		letter-spacing: -1px;
@@ -101,8 +104,8 @@
 	.leaflet-zoom-#{$zoom-break-min + 1}-up.leaflet-zoom-#{$zoom-break-max - 1}-down & {
 		width				: $size-min;
 		height			: $size-min;
-		margin-left	: -0.5 * $size-min;
-		margin-top	: -0.5 * $size-min;
+		margin-left	: -0.5 * ($size-min + $border-thick);
+		margin-top	: -0.5 * ($size-min + $border-thick);
 
 		font-size			: $size-min / 2;
 		line-height		: $size-min;
@@ -112,8 +115,8 @@
 	.leaflet-zoom-#{$zoom-break-max}-up & {
 		width				: $size-max;
 		height			: $size-max;
-		margin-left	: -0.5 * $size-max;
-		margin-top	: -0.5 * $size-max;
+		margin-left	: -0.5 * ($size-max + $border-thick);
+		margin-top	: -0.5 * ($size-max + $border-thick);
 
 		font-size			: $size-max / 2;
 		line-height		: $size-max;

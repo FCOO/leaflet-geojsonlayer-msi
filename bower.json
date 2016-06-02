@@ -1,6 +1,6 @@
 {
   "name": "leaflet-geojsonlayer-msi",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "homepage": "https://github.com/FCOO/leaflet-geojsonlayer-msi",
   "authors": [
     "Jesper Larsen jla@fcoo.dk",
@@ -21,8 +21,8 @@
     "moment": "latest",
     "latlng-format": "fcoo/latlng-format",
     "leaflet-latlng-format": "fcoo/leaflet-latlng-format#latest",
-    "leaflet-popup-extensions": "fcoo/leaflet-popup-extensions#^0.1.0",
-    "leaflet-zoom-modernizr": "fcoo/leaflet-zoom-modernizr#^1.0.1"
+    "leaflet-popup-extensions": "fcoo/leaflet-popup-extensions#latest",
+    "leaflet-zoom-modernizr": "fcoo/leaflet-zoom-modernizr#latest"
   },
   "devDependencies": {
     "bourbon": "latest",

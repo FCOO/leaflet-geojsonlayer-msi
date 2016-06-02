@@ -43,8 +43,10 @@
   font-family: Arial;
   text-align: center; }
   .msi-marker:hover {
-    border-color: #7c0043;
-    background-color: rgba(255, 255, 255, 0.7); }
+    color: black;
+    border-color: black;
+    background-color: white;
+    z-index: 99999 !important; }
   .leaflet-zoom-7 .msi-marker {
     width: 10px;
     height: 10px;
@@ -63,26 +65,26 @@
   .leaflet-zoom-4-down .msi-marker {
     display: none !important; }
   .leaflet-zoom-7-down .msi-marker:hover {
-    box-shadow: 0px 0px 0px 1px #7c0043; }
+    box-shadow: 0px 0px 0px 1px black; }
   .leaflet-zoom-8-up .msi-marker {
-    box-shadow: 0px 0px 0px 1px #e2007a;
+    border: 2px solid #e2007a;
     letter-spacing: -1px;
     padding-right: 1px; }
     .leaflet-zoom-8-up .msi-marker:hover {
-      box-shadow: 0px 0px 0px 2px #7c0043; }
+      border: 2px solid black; }
     .leaflet-zoom-8-up .msi-marker:before {
       content: 'MSI'; }
   .leaflet-zoom-8-up.leaflet-zoom-9-down .msi-marker {
     width: 16px;
     height: 16px;
-    margin-left: -8px;
-    margin-top: -8px;
+    margin-left: -9px;
+    margin-top: -9px;
     font-size: 8px;
     line-height: 16px; }
   .leaflet-zoom-10-up .msi-marker {
     width: 20px;
     height: 20px;
-    margin-left: -10px;
-    margin-top: -10px;
+    margin-left: -11px;
+    margin-top: -11px;
     font-size: 10px;
     line-height: 20px; }
