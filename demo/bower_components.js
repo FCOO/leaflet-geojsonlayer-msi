@@ -16335,6 +16335,7 @@ L.extend(L.GeoJSON, {
 	}
 });
 
+
 var PointToGeoJSON = {
 	toGeoJSON: function () {
 		return L.GeoJSON.getFeature(this, {
