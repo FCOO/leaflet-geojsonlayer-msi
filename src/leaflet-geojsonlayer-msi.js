@@ -7,7 +7,7 @@
     https://github.com/FCOO
 
 ****************************************************************************/
-(function ($, L/*, window, document, undefined*/) {
+(function ($, L, window/*, document, undefined*/) {
     "use strict";
 
     var msiDivIcon = L.divIcon({className: 'msi-marker', iconSize:null, iconAnchor:null});

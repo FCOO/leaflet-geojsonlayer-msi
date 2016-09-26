@@ -1,6 +1,6 @@
 {
   "name": "leaflet-geojsonlayer-msi",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "homepage": "https://github.com/FCOO/leaflet-geojsonlayer-msi",
   "authors": [
     "Jesper Larsen jla@fcoo.dk",
@@ -8,8 +8,8 @@
   ],
   "description": "",
   "main": [
-    "dist/leaflet-geojsonlayer-msi.min.js",
-    "dist/leaflet-geojsonlayer-msi.min.css"
+    "dist/leaflet-geojsonlayer-msi.js",
+    "dist/leaflet-geojsonlayer-msi.css"
   ],
   "repository": {
     "type": "git",
