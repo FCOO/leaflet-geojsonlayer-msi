@@ -1,0 +1,459 @@
+{
+  "type": "FeatureCollection", 
+  "features": [
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          11.9300166666667, 
+          54.5654166666667
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-10-03T14:02:26", 
+        "language": "en", 
+        "created": "2016-10-03T13:53:19", 
+        "subarea": "Roedsand Rende", 
+        "validFrom": "2016-10-03T13:50:00", 
+        "mainarea": "Baltic", 
+        "encText": "Light buoy missing", 
+        "navWarning": "The port hand light buoy in pos. 54 33,9 N - 011 55,8 E is missing."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          9.9201, 
+          55.8509166666667
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-09-27T14:59:51", 
+        "language": "en", 
+        "created": "2016-09-27T14:57:36", 
+        "subarea": "Horsens Fiord", 
+        "validFrom": "2016-09-27T14:53:00", 
+        "mainarea": "Kattegat", 
+        "encText": "Light buoy unlit", 
+        "navWarning": "The starboard hand light buoy in pos. 55 51,1 N - 009 55,2 E is unlit."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          10.67515, 
+          56.1976333333333
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-09-22T10:57:25", 
+        "language": "en", 
+        "created": "2016-09-22T10:55:19", 
+        "subarea": "Ebeltoft Vig", 
+        "validFrom": "2016-09-22T10:52:00", 
+        "mainarea": "Kattegat", 
+        "encText": "Light unlit", 
+        "navWarning": "The rear light in pos. 56 11,9 N - 010 40,5 E is unlit."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "GeometryCollection", 
+        "geometries": [
+          {
+            "type": "LineString", 
+            "coordinates": [
+              [
+                10.2295, 
+                56.547
+              ], 
+              [
+                11.2291666666667, 
+                56.5216666666667
+              ]
+            ]
+          }, 
+          {
+            "type": "MultiPoint", 
+            "coordinates": [
+              [
+                10.2295, 
+                56.547
+              ], 
+              [
+                11.2291666666667, 
+                56.5216666666667
+              ]
+            ]
+          }
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-10-04T08:52:22", 
+        "language": "en", 
+        "created": "2016-10-04T07:57:49", 
+        "subarea": "Randers Fiord", 
+        "validFrom": "2016-10-04T07:57:00", 
+        "mainarea": "Kattegat", 
+        "encText": "Reduced depth", 
+        "navWarning": "Water depths down to 1,8m have been observed in the boyaged channel Raden between pos. 56 32,8 N - 010 13,8 E and 56 31,3 N - 010 13,8 E."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          12.3143166666667, 
+          56.12965
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-09-16T11:36:37", 
+        "language": "en", 
+        "created": "2016-09-16T11:32:07", 
+        "subarea": "Gilleleje", 
+        "validFrom": "2016-09-16T11:32:00", 
+        "mainarea": "Kattegat", 
+        "encText": "Obstruction", 
+        "navWarning": "An Uncharted obstruction is observed in approx. pos. 56 07,8 N - 012 18,9 E. The radius of the obstruction is approx. 80 m. The obstruction is partly visible above surface and is marked with orange ballons and White flashing lights. Mariners are advised to keep well clear."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "GeometryCollection", 
+        "geometries": [
+          {
+            "type": "LineString", 
+            "coordinates": [
+              [
+                8.52111666666667, 
+                57.1163333333333
+              ], 
+              [
+                8.923, 
+                57.1159166666667
+              ]
+            ]
+          }, 
+          {
+            "type": "MultiPoint", 
+            "coordinates": [
+              [
+                8.52111666666667, 
+                57.1163333333333
+              ], 
+              [
+                8.923, 
+                57.1159166666667
+              ]
+            ]
+          }
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-10-04T10:26:00", 
+        "language": "en", 
+        "created": "2016-10-04T10:20:59", 
+        "subarea": "Off Hanstholm", 
+        "validFrom": "2016-10-04T09:15:00", 
+        "mainarea": "North Sea", 
+        "encText": "Light buoy unlit", 
+        "navWarning": "The special light buoys in pos. 57 07,0 N - 008 31,3 E and 57 07,0 N - 008 31,4 E are unlit."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          8.13616666666667, 
+          55.8491666666667
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-02-05T19:07:45", 
+        "language": "en", 
+        "created": "2016-02-05T10:19:33", 
+        "subarea": "Off Nymindegab", 
+        "validFrom": "2016-02-05T10:08:00", 
+        "mainarea": "North Sea", 
+        "encText": "Wreck", 
+        "navWarning": "A platform has sunk in pos. 55 51,0 N - 008 08,2 E. The wreck is visible above the surface. The wreck is marked with a blue and yellow light buoy showing alternating blue and yellow light approx. 100m W of position. Mariners are advised to keep well clear."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          12.68545, 
+          55.77275
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-09-27T10:57:02", 
+        "language": "en", 
+        "created": "2016-09-27T06:29:26", 
+        "subarea": "Approach to Copenhagen Harbour", 
+        "validFrom": "2016-09-27T06:29:00", 
+        "mainarea": "The Sound", 
+        "encText": "Light buoy missing", 
+        "navWarning": "The special light buoy in pos. 55 46,4 N - 012 41,1 E is missing."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "GeometryCollection", 
+        "geometries": [
+          {
+            "type": "Polygon", 
+            "coordinates": [
+              [
+                [
+                  4.08333333333333, 
+                  55.9166666666667
+                ], 
+                [
+                  5.0, 
+                  55.2
+                ], 
+                [
+                  5.66666666666667, 
+                  55.4166666666667
+                ], 
+                [
+                  4.75, 
+                  56.1
+                ], 
+                [
+                  4.08333333333333, 
+                  55.9166666666667
+                ]
+              ]
+            ]
+          }, 
+          {
+            "type": "MultiPoint", 
+            "coordinates": [
+              [
+                4.08333333333333, 
+                55.9166666666667
+              ], 
+              [
+                5.0, 
+                55.2
+              ], 
+              [
+                5.66666666666667, 
+                55.4166666666667
+              ], 
+              [
+                4.75, 
+                56.1
+              ]
+            ]
+          }
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-09-23T09:26:25", 
+        "language": "en", 
+        "created": "2016-09-23T08:30:05", 
+        "subarea": "Central Part", 
+        "validFrom": "2016-09-23T08:30:00", 
+        "mainarea": "North Sea", 
+        "encText": "Seismic survey", 
+        "navWarning": "Seismic survey is carried out in the area between pos. 55 55,0 N - 004 05,0 E and 55 12,0 N - 005 00,0 E and 55 25,0 N - 005 40,0 E and 56 06,0 N - 004 45,0 E. Work is carried out by \u00b4Polarcus Asima\u00b4 callsign 'C6XK6', towing 8 cables 2 NM long. Mariners are requested to pass with caution and keep a minimum distance of 5 NM."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          12.5088166666667, 
+          55.6118833333333
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-09-23T14:21:02", 
+        "language": "en", 
+        "created": "2016-08-29T11:28:35", 
+        "subarea": "Kalvebod bridge", 
+        "validFrom": "2016-08-29T11:15:00", 
+        "mainarea": "The Sound", 
+        "encText": "Light unlit", 
+        "navWarning": "The front light Iso.W2s in pos. 55 36,7 N - 012 30,5 E is unlit."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          12.4, 
+          55.61
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-08-26T13:39:09", 
+        "language": "en", 
+        "created": "2016-08-26T13:34:54", 
+        "subarea": "K\u00f8ge Bugt", 
+        "validFrom": "2016-08-26T13:26:00", 
+        "mainarea": "The Sound", 
+        "encText": "Reduced depth", 
+        "navWarning": "Water depths down to 2.5m have been observed in pos. 55 36,6 N - 012 24,0 E in the entrance to Vallensb\u00e6k and Ish\u00f8j Harbour. Mariners are advised to keep well clear."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          5.00733333333333, 
+          55.532
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-10-06T08:38:14", 
+        "language": "en", 
+        "created": "2016-10-06T08:29:06", 
+        "subarea": "Halfdan field", 
+        "validFrom": "2016-10-06T08:29:00", 
+        "mainarea": "North Sea", 
+        "encText": "RACON inoperative", 
+        "navWarning": "RACON on the platform 'Halfdan A' in pos. 55 31,9 N - 005 00,4 E is inoperative."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          8.42376666666667, 
+          55.4702833333333
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-10-04T15:27:28", 
+        "language": "en", 
+        "created": "2016-10-04T15:27:28", 
+        "subarea": "Esbjerg Harbour", 
+        "validFrom": "2016-10-04T15:22:00", 
+        "mainarea": "North Sea", 
+        "encText": "Light unreliable", 
+        "navWarning": "The red sector on the sector light in pos. 55 28,2 N - 008 25,4 E is unreliable."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          11.195, 
+          55.2695
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-10-05T23:08:55", 
+        "language": "en", 
+        "created": "2016-10-05T23:08:54", 
+        "subarea": "Agersoe Sound", 
+        "validFrom": "2016-10-05T23:04:00", 
+        "mainarea": "Great Belt", 
+        "encText": "Light buoy unreliable", 
+        "navWarning": "The starboard hand light buoy Egholm Flak E in pos. 55 16,2 N - 011 11,7 E is unreliable."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          12.1646666666667, 
+          54.9895
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-09-20T15:38:59", 
+        "language": "en", 
+        "created": "2016-09-20T15:34:27", 
+        "subarea": "Ulvsund", 
+        "validFrom": "2016-09-20T15:21:00", 
+        "mainarea": "Waters south of Sealand", 
+        "encText": "Light unlit", 
+        "navWarning": "The lights in the passage span of Dronning Alexandrines Bridge in pos. 54 59,4 N - 012 09,9 E is unlit."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          11.5063333333333, 
+          54.8543166666667
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-07-04T08:54:50", 
+        "language": "en", 
+        "created": "2016-07-04T08:34:34", 
+        "subarea": "Bandholm Channel", 
+        "validFrom": "2016-07-04T08:33:00", 
+        "mainarea": "Waters south of Sealand", 
+        "encText": "Buoy off station", 
+        "navWarning": "The port hand buoy in pos. 54 51,3 N - 11 30,4 E is off station."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          11.4874333333333, 
+          54.864
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-07-04T08:55:36", 
+        "language": "en", 
+        "created": "2016-07-04T08:33:03", 
+        "subarea": "Bandholm Channel", 
+        "validFrom": "2016-07-04T08:30:00", 
+        "mainarea": "Waters south of Sealand", 
+        "encText": "Buoy off station", 
+        "navWarning": "The starboard hand buoy in pos. 54 51,8 N - 11 29,2 E is off station."
+      }
+    }, 
+    {
+      "geometry": {
+        "type": "Point", 
+        "coordinates": [
+          9.91, 
+          57.0580666666667
+        ]
+      }, 
+      "type": "Feature", 
+      "properties": {
+        "updated": "2016-09-04T12:00:07", 
+        "language": "en", 
+        "created": "2016-09-04T12:00:07", 
+        "subarea": "Aalborg", 
+        "validFrom": "2016-09-04T11:49:00", 
+        "mainarea": "Liimfiord", 
+        "encText": "Bridge closed", 
+        "navWarning": "The Railway bridge in position 57-03.5N 009-54.6E is closed for all traffic that requires opening of the bridge."
+      }
+    }
+  ]
+}

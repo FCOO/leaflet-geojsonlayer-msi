@@ -1,44 +1,45 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="da" style="font-size: 100%">
 <head>
-	<title>fcoo.dk - leaflet-geojsonlayer-msi - Demo</title>
-	<meta charset="utf-8" />
+    <title>fcoo.dk - leaflet-geojsonlayer-msi - Demo</title>
+    <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta http-equiv='x-dns-prefetch-control' content='on'>
 
-	<meta name='copyright' content='FCOO'>
-	<meta name='owner' content='FCOO'>
+    <meta name='copyright' content='FCOO'>
+    <meta name='owner' content='FCOO'>
 
-  <link  href="bower_components.css" rel="stylesheet">	
-  <link  href="leaflet-control-mouseposition.css" rel="stylesheet">	
-  <link  href="../src/leaflet-geojsonlayer-msi.css" rel="stylesheet">	
+  <link  href="bower_components.css" rel="stylesheet">    
+  <link  href="leaflet-control-mouseposition.css" rel="stylesheet">    
+  <link  href="../src/leaflet-geojsonlayer-msi.css" rel="stylesheet">    
 </head>
 
 <body>
-	<div id="map" style="width: 600px; height: 400px"></div>
-	<div id="zoom" style="width: 160px; height: 20px"></div>
+    <div id="map" style="width: 1000px; height: 600px"></div>
+    <div id="zoom" style="width: 160px; height: 20px"></div>
 
-	
-	
-	<script src="bower_components.js"></script>
-	<script src="leaflet-mouseposition.js"></script>
-	<script src="leaflet-control-mouseposition.js"></script>
-	<script src="../src/leaflet-geojsonlayer-msi.js"></script>
-	<script>
-		$(function() {
-			var map = L.map('map', {mousepositionControl:true}).setView([56.2, 11.5], 8);
-			
-			L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-				minZoom: 3, maxZoom: 12,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors</a>'
-      }).addTo(map);
+    
+    
+    <script src="bower_components.js"></script>
+    <script src="leaflet-mouseposition.js"></script>
+    <script src="leaflet-control-mouseposition.js"></script>
+    <script src="../src/leaflet-geojsonlayer-msi.js"></script>
+    <script>
+        $(function() {
+            var map = L.map('map', {mousepositionControl:true}).setView([56.2, 10.9], 6);
+            
+            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                minZoom: 3, maxZoom: 12,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors</a>'
+            }).addTo(map);
 
-			var msi = new L.GeoJSON.MSI({language: 'en', protocol:'https:'});
-      map.addLayer(msi);
-  
-			map.on('zoomend', function( e ){ document.getElementById("zoom").innerHTML = 'zoom = '+this.getZoom(); }, map);		
-		
-		});
-	</script>
+//            var msi = new L.GeoJSON.MSI({language: 'en', protocol:'https:', baseurl:'//app.fcoo.dk/warnings/msi/msi_test_en.json'});
+            var msi = new L.GeoJSON.MSI({language: 'da', protocol:'', baseurl:'test-data.json'});
+
+            map.addLayer(msi);
+            map.on('zoomend', function( e ){ document.getElementById("zoom").innerHTML = 'zoom = '+this.getZoom(); }, map);        
+        
+        });
+    </script>
 </body>
 </html>

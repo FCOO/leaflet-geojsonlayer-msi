@@ -38,7 +38,7 @@
                 text         = options.text,//[ options.language ] || options.text['da'],
                 language     = options.language || 'da',
                 positionList = [],
-                i, coor,
+                i, 
                 positionContent = '';
 
 
@@ -55,13 +55,28 @@
             }
             var coordsToLatLng = this.geoJSON_MSI.options.coordsToLatLng;
 
+
+            function addToPositionList( geometry ){
+                //Only include points from "Point" or "MultiPoint". Polygons and lines are dublicated by "MultiPoint"
+                if (geometry.type == "GeometryCollection"){
+                    $.each( geometry.geometries, function( index, geom ){
+                        addToPositionList( geom );
+                    });
+                }
+                else 
+                    if (geometry.type == "MultiPoint"){
+                        $.each( geometry.coordinates, function( index, coor ){
+                            positionList.push( coordsToLatLng( coor ) ) ;
+                        });
+                    }
+                    else 
+                        if (geometry.type == "Point"){
+                            positionList.push( coordsToLatLng( geometry.coordinates ) ) ;
+                        }
+            }
+
             //Create list of position(s)
-            if (this.feature.geometry.type !== 'Point')
-                for (coor in this.feature.geometry.geometries[0].coordinates)
-                    positionList.push( coordsToLatLng( this.feature.geometry.geometries[0].coordinates[coor]  ) );
-            else
-                positionList.push( coordsToLatLng( this.feature.geometry.coordinates ) ) ;
-    
+            addToPositionList( this.feature.geometry );
 
             //Set header for position-section
             text['header_position'] = positionList.length == 1 ? text['header_position'] : text['header_positions'];
@@ -71,11 +86,11 @@
 
             //Insert data
             insertInContent( {
-                'title'        : this.feature.properties.encText,
-                'body'        : this.feature.properties.navWarning,
-                'updated'    : dateAsHTML( this.feature.properties.updated, options.language, options.timezone ),
+                'title'   : this.feature.properties.encText,
+                'body'    : this.feature.properties.navWarning,
+                'updated' : dateAsHTML( this.feature.properties.updated, options.language, options.timezone ),
                 'mainarea': this.feature.properties.mainarea,
-                'subarea'    : this.feature.properties.subarea
+                'subarea' : this.feature.properties.subarea
             });
 
             //Positions
@@ -93,29 +108,31 @@
             timezone: 'local',
             protocol: window.location.protocol,
             baseurl : '//app.fcoo.dk/warnings/msi/msi_{language}.json',
-	        coordsToLatLng: function (coords) { // (Array[, Boolean]) -> LatLng
-		        return new L.LatLng(coords[1], coords[0], coords[2]);
-	        },
+            coordsToLatLng: function (coords) { // (Array[, Boolean]) -> LatLng
+                return new L.LatLng(coords[1], coords[0], coords[2]);
+            },
 
             pointToLayer: function (feature, latlng) {
                 var result = L.marker(latlng, {icon: msiDivIcon});
                 result.on('add', function(){
-                this._icon.title = 'MSI: ' + feature.properties.encText + '\n' + feature.properties.mainarea + ' - ' + feature.properties.subarea; }, result);
+                    this._icon.title = 'MSI: ' + feature.properties.encText + '\n' + feature.properties.mainarea + ' - ' + feature.properties.subarea; 
+                }, result);
                 return result;
             },
+
             style: function (/*feature*/) {
                 return {
-                    weight: 2,
-                    color: "#e2007a",
-                    opacity: 1,
-                    fillColor: "#e2007a",
+                    weight     : 2,
+                    color      : "#e2007a",
+                    opacity    : 1,
+                    fillColor  : "#e2007a",
                     fillOpacity: 0.2,
                 };
             },
             template: {
                 popup:
                     '<div class="msi">'+
-                        '<h3>{header}</h3>'+
+//                        '<h3>{header}</h3>'+
                         '<p>{body}</p><hr/>'+
 
                         '<h4>{header_time}</h4>'+
@@ -133,16 +150,16 @@
             },
 
             text: {
-                'header'          : {    da:'Aktuelle advarsler',   en:'Maritime Safety Information'},
-                'header_time'     : {    da:'Tid',                  en:'Time'},
-                'header_area'     : {    da:'Område',               en:'Area'},
-                'header_main_area': {    da:'Hovedområde',          en:'Main area'},
-                'header_subarea'  : {    da:'Underområde',          en:'Subarea'},
-                'header_position' : {    da:'Position',             en:'Position'},
-                'header_positions': {    da:'Positioner',           en:'Positions'},
-                'header_source'   : {    da:'Kilde',                en:'Source'},
-                'source_link'     : {    da:'<a target="_new" href="http://www.soefartsstyrelsen.dk">Søfartsstyrelsen</a>',
-                                         en:'<a target="_new" href="http://dma.dk">Danish Maritime Authority</a>'
+                'header'          : { da:'Aktuelle advarsler',   en:'Maritime Safety Information'},
+                'header_time'     : { da:'Tid',                  en:'Time'},
+                'header_area'     : { da:'Område',               en:'Area'},
+                'header_main_area': { da:'Hovedområde',          en:'Main area'},
+                'header_subarea'  : { da:'Underområde',          en:'Subarea'},
+                'header_position' : { da:'Position',             en:'Position'},
+                'header_positions': { da:'Positioner',           en:'Positions'},
+                'header_source'   : { da:'Kilde',                en:'Source'},
+                'source_link'     : { da:'<a target="_new" href="http://www.soefartsstyrelsen.dk">Søfartsstyrelsen</a>',
+                                      en:'<a target="_new" href="http://dma.dk">Danish Maritime Authority</a>'
                                     }
             }
         },
@@ -160,9 +177,11 @@
             });
 
             // Set method to perform on each feature
+            var header = this.options.text['header'][this.options.language];
             this.options.onEachFeature = function (feature, layer) {
                 var msiFeature = new MsiFeature( feature, _this );
                 layer.bindPopup('', {
+                    header           :  header,
                     maxWidth         : 300,
                     maxHeight        : 400,
                     getContent       : msiFeature.updatePopup,
@@ -177,6 +196,7 @@
             this.jqxhr.done(function (/*data*/) {
                 L.GeoJSON.prototype.onAdd.call(_this, map);
             });
+
 
             // Whenever the timezone is changed we will change the internal timezone
             map.on("timezonechange", function(data) {

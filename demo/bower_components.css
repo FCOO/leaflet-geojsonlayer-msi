@@ -1,16 +1,12 @@
 /* required styles */
 
-.leaflet-map-pane,
+.leaflet-pane,
 .leaflet-tile,
 .leaflet-marker-icon,
 .leaflet-marker-shadow,
-.leaflet-tile-pane,
 .leaflet-tile-container,
-.leaflet-overlay-pane,
-.leaflet-shadow-pane,
-.leaflet-marker-pane,
-.leaflet-popup-pane,
-.leaflet-overlay-pane svg,
+.leaflet-map-pane svg,
+.leaflet-map-pane canvas,
 .leaflet-zoom-box,
 .leaflet-image-layer,
 .leaflet-layer {
@@ -20,8 +16,6 @@
 	}
 .leaflet-container {
 	overflow: hidden;
-	-ms-touch-action: none;
-	touch-action: none;
 	}
 .leaflet-tile,
 .leaflet-marker-icon,
@@ -29,20 +23,42 @@
 	-webkit-user-select: none;
 	   -moz-user-select: none;
 	        user-select: none;
-	-webkit-user-drag: none;
+	  -webkit-user-drag: none;
+	}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
 	}
 .leaflet-marker-icon,
 .leaflet-marker-shadow {
 	display: block;
 	}
-/* map is broken in FF if you have max-width: 100% on tiles */
-.leaflet-container img {
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg,
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer {
 	max-width: none !important;
 	}
-/* stupid Android 2 doesn't understand "max-width: none" properly */
-.leaflet-container img.leaflet-image-layer {
-	max-width: 15000px !important;
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
 	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-drag {
+	-ms-touch-action: none;
+	touch-action: none;
+}
 .leaflet-tile {
 	filter: inherit;
 	visibility: hidden;
@@ -53,18 +69,26 @@
 .leaflet-zoom-box {
 	width: 0;
 	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
 	}
 /* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
 .leaflet-overlay-pane svg {
 	-moz-user-select: none;
 	}
 
-.leaflet-tile-pane    { z-index: 2; }
-.leaflet-objects-pane { z-index: 3; }
-.leaflet-overlay-pane { z-index: 4; }
-.leaflet-shadow-pane  { z-index: 5; }
-.leaflet-marker-pane  { z-index: 6; }
-.leaflet-popup-pane   { z-index: 7; }
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
 
 .leaflet-vml-shape {
 	width: 1px;
@@ -81,7 +105,8 @@
 
 .leaflet-control {
 	position: relative;
-	z-index: 7;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
 	pointer-events: auto;
 	}
 .leaflet-top,
@@ -125,7 +150,9 @@
 
 /* zoom and fade animations */
 
-.leaflet-fade-anim .leaflet-tile,
+.leaflet-fade-anim .leaflet-tile {
+	will-change: opacity;
+	}
 .leaflet-fade-anim .leaflet-popup {
 	opacity: 0;
 	-webkit-transition: opacity 0.2s linear;
@@ -133,11 +160,17 @@
 	     -o-transition: opacity 0.2s linear;
 	        transition: opacity 0.2s linear;
 	}
-.leaflet-fade-anim .leaflet-tile-loaded,
 .leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
 	opacity: 1;
 	}
-
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	will-change: transform;
+	}
 .leaflet-zoom-anim .leaflet-zoom-animated {
 	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
 	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
@@ -145,8 +178,7 @@
 	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
 	}
 .leaflet-zoom-anim .leaflet-tile,
-.leaflet-pan-anim .leaflet-tile,
-.leaflet-touching .leaflet-zoom-animated {
+.leaflet-pan-anim .leaflet-tile {
 	-webkit-transition: none;
 	   -moz-transition: none;
 	     -o-transition: none;
@@ -160,24 +192,44 @@
 
 /* cursors */
 
-.leaflet-clickable {
+.leaflet-interactive {
 	cursor: pointer;
 	}
-.leaflet-container {
+.leaflet-grab {
 	cursor: -webkit-grab;
 	cursor:    -moz-grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
 	}
 .leaflet-popup-pane,
 .leaflet-control {
 	cursor: auto;
 	}
-.leaflet-dragging .leaflet-container,
-.leaflet-dragging .leaflet-clickable {
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
 	cursor: move;
 	cursor: -webkit-grabbing;
 	cursor:    -moz-grabbing;
 	}
 
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
 
 /* visual tweaks */
 
@@ -304,6 +356,10 @@
 	color: #333;
 	background: #fff;
 	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	padding-right: 5px;
+	}
 .leaflet-control-layers-selector {
 	margin-top: 2px;
 	position: relative;
@@ -316,6 +372,11 @@
 	height: 0;
 	border-top: 1px solid #ddd;
 	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path {
+	background-image: url(images/marker-icon.png);
 	}
 
 
@@ -355,8 +416,8 @@
 	font-size: 11px;
 	white-space: nowrap;
 	overflow: hidden;
-	-moz-box-sizing: content-box;
-	     box-sizing: content-box;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
 
 	background: #fff;
 	background: rgba(255, 255, 255, 0.5);
@@ -387,6 +448,7 @@
 .leaflet-popup {
 	position: absolute;
 	text-align: center;
+	margin-bottom: 20px;
 	}
 .leaflet-popup-content-wrapper {
 	padding: 1px;
@@ -401,11 +463,13 @@
 	margin: 18px 0;
 	}
 .leaflet-popup-tip-container {
-	margin: 0 auto;
 	width: 40px;
 	height: 20px;
-	position: relative;
+	position: absolute;
+	left: 50%;
+	margin-left: -20px;
 	overflow: hidden;
+	pointer-events: none;
 	}
 .leaflet-popup-tip {
 	width: 17px;
@@ -423,7 +487,7 @@
 .leaflet-popup-content-wrapper,
 .leaflet-popup-tip {
 	background: white;
-
+	color: #333;
 	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
 	}
 .leaflet-container a.leaflet-popup-close-button {
@@ -431,6 +495,7 @@
 	top: 0;
 	right: 0;
 	padding: 4px 4px 0 0;
+	border: none;
 	text-align: center;
 	width: 18px;
 	height: 14px;
@@ -477,3 +542,342 @@
 	background: #fff;
 	border: 1px solid #666;
 	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-clickable {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/***********************************************
+	leaflet-control-button-group.scss, 
+
+	(c) 2016, FCOO
+
+	https://github.com/FCOO/leaflet-control-button-group
+	https://github.com/FCOO
+
+
+************************************************/
+/**********************
+Dim and font-size etc. for the tree different modes. .leaflet-touch.small == normal
+**********************/
+/**********************
+Dimentions and padding for different sizees
+**********************/
+.leaflet-control-button-group a.leaflet-control-button,
+.leaflet-touch .small.leaflet-control-button-group a.leaflet-control-button {
+  height: 26px;
+  line-height: 26px; }
+
+.leaflet-control-button-group a.leaflet-control-button.fa,
+.leaflet-touch .small.leaflet-control-button-group a.leaflet-control-button.fa {
+  font-size: 16px; }
+
+.leaflet-control-button-group a.leaflet-control-button.text,
+.leaflet-touch .small.leaflet-control-button-group a.leaflet-control-button.text {
+  font-size: 14px;
+  padding-left: 5px;
+  padding-right: 5px; }
+
+.leaflet-control-button-group a.leaflet-control-button.text i,
+.leaflet-touch .small.leaflet-control-button-group a.leaflet-control-button.text i {
+  padding-right: 2px;
+  font-size: 16px; }
+
+.leaflet-control-button-group .leaflet-control-container-between,
+.leaflet-touch .small.leaflet-control-button-group .leaflet-control-container-between {
+  width: 26px;
+  height: 26px;
+  line-height: 26px;
+  font-size: 14px; }
+
+.small.leaflet-control-button-group a.leaflet-control-button {
+  height: 20px;
+  line-height: 20px; }
+
+.small.leaflet-control-button-group a.leaflet-control-button.fa {
+  width: 20px;
+  font-size: 13.75px; }
+
+.small.leaflet-control-button-group a.leaflet-control-button.text {
+  font-size: 12px;
+  padding-left: 4px;
+  padding-right: 4px; }
+
+.small.leaflet-control-button-group a.leaflet-control-button.text i {
+  padding-right: 1px;
+  font-size: 13.75px; }
+
+.small.leaflet-control-button-group .leaflet-control-container-between {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  font-size: 12px; }
+
+.leaflet-touch .leaflet-control-button-group a.leaflet-control-button {
+  height: 30px;
+  line-height: 30px; }
+
+.leaflet-touch .leaflet-control-button-group a.leaflet-control-button.fa {
+  font-size: 19px; }
+
+.leaflet-touch .leaflet-control-button-group a.leaflet-control-button.text {
+  font-size: 19px;
+  padding-left: 8px;
+  padding-right: 8px; }
+
+.leaflet-touch .leaflet-control-button-group a.leaflet-control-button.text i {
+  padding-right: 3px;
+  font-size: 19px; }
+
+.leaflet-touch .leaflet-control-button-group .leaflet-control-container-between {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  font-size: 19px; }
+
+/**********************
+Adjustments to give leaflet a bootstrap-like look
+**********************/
+.leaflet-control-button-group {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  /*******************
+	Anchor 
+	********************/ }
+  .leaflet-control-button-group a.leaflet-control-button {
+    color: #444;
+    cursor: pointer;
+    vertical-align: top; }
+    .leaflet-control-button-group a.leaflet-control-button:not(:hover):not(.selected) {
+      color: #444 !important; }
+      .leaflet-control-button-group a.leaflet-control-button:not(:hover):not(.selected) i {
+        color: #444 !important; }
+    .leaflet-control-button-group a.leaflet-control-button.leaflet-disabled, .leaflet-control-button-group a.leaflet-control-button[disabled] {
+      cursor: default;
+      opacity: 0.4;
+      pointer-events: none; }
+    .leaflet-control-button-group a.leaflet-control-button.leaflet-hidden {
+      display: none !important; }
+    .leaflet-control-button-group a.leaflet-control-button:hover {
+      color: black;
+      background-color: #e6e6e6; }
+    .leaflet-control-button-group a.leaflet-control-button:active {
+      color: black;
+      background-color: #bdbdbd; }
+    .leaflet-control-button-group a.leaflet-control-button.selected {
+      color: black;
+      background-color: #d1d1d1; }
+      .leaflet-control-button-group a.leaflet-control-button.selected:hover {
+        background-color: #b8b8b8; }
+      .leaflet-control-button-group a.leaflet-control-button.selected:active {
+        background-color: #9e9e9e; }
+    .leaflet-control-button-group a.leaflet-control-button.text {
+      font-family: proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif;
+      text-align: left;
+      width: auto; }
+      .leaflet-control-button-group a.leaflet-control-button.text i {
+        margin: 0px;
+        text-align: center;
+        vertical-align: 0; }
+  .leaflet-control-button-group.center-text a.leaflet-control-button {
+    text-align: center; }
+  .leaflet-control-button-group.horizontal {
+    text-align: center; }
+    .leaflet-control-button-group.horizontal .leaflet-control-container-between {
+      width: auto !important; }
+    .leaflet-control-button-group.horizontal a.leaflet-control-button,
+    .leaflet-control-button-group.horizontal .leaflet-control-container-between {
+      display: inline-block;
+      border-bottom: none;
+      border-right: 1px solid #ccc;
+      border-radius: 0px; }
+    .leaflet-control-button-group.horizontal a.leaflet-control-button:first-of-type, .leaflet-control-button-group.horizontal a.leaflet-control-button.first-child, .leaflet-control-button-group.horizontal a.leaflet-control-button.first-visible {
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px; }
+    .leaflet-control-button-group.horizontal a.leaflet-control-button:last-of-type, .leaflet-control-button-group.horizontal a.leaflet-control-button.last-child, .leaflet-control-button-group.horizontal a.leaflet-control-button.last-visible {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      border-right: medium none; }
+    .leaflet-control-button-group.horizontal a.leaflet-control-button.last-child, .leaflet-control-button-group.horizontal a.leaflet-control-button.last-visible:not(.absolute-last-visible) {
+      margin-right: 4px; }
+    .leaflet-control-button-group.horizontal a.leaflet-control-button.absolute-last-visible {
+      margin-right: 0px !important; }
+  .leaflet-control-button-group:not(.horizontal) .leaflet-control-container-between {
+    border-bottom: 1px solid #ccc;
+    width: auto !important; }
+  .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button:first-of-type, .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button.first-child, .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button.first-visible {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px; }
+  .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button:last-of-type, .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button.last-child, .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button.last-visible {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-right: medium none; }
+  .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button.last-child, .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button.last-visible:not(.absolute-last-visible) {
+    margin-bottom: 4px; }
+  .leaflet-control-button-group:not(.horizontal) a.leaflet-control-button.absolute-last-visible {
+    margin-bottom: 0px !important; }
+  .leaflet-control-button-group.separate .leaflet-control-container-between,
+  .leaflet-control-button-group.separate a.leaflet-control-button {
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important; }
+    .leaflet-control-button-group.separate .leaflet-control-container-between:hover,
+    .leaflet-control-button-group.separate a.leaflet-control-button:hover {
+      border-color: #adadad; }
+  .leaflet-control-button-group.separate a.leaflet-control-button:hover {
+    border-color: #adadad; }
+  .leaflet-control-button-group.separate.horizontal a.leaflet-control-button {
+    margin-right: 4px; }
+    .leaflet-control-button-group.separate.horizontal a.leaflet-control-button:last-of-type {
+      margin-right: 0px; }
+  .leaflet-control-button-group.separate.horizontal .leaflet-control-container-between {
+    margin-right: 4px; }
+  .leaflet-control-button-group.separate:not(.horizontal) a.leaflet-control-button {
+    margin-bottom: 4px; }
+    .leaflet-control-button-group.separate:not(.horizontal) a.leaflet-control-button:last-of-type {
+      margin-bottom: 0px; }
+  .leaflet-control-button-group.separate:not(.horizontal) .leaflet-control-container-between {
+    margin-bottom: 4px; }
+  .leaflet-control-button-group.radio-group a.radio-button.selected {
+    cursor: default;
+    pointer-events: none; }
+  .leaflet-control-button-group .leaflet-control-container-between {
+    background-color: #fff;
+    vertical-align: middle;
+    padding: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-family: proxima-nova,"Helvetica Neue",Helvetica,Arial,sans-serif; }
+
+/***********************************************
+	leaflet-popup-extensions.scss, 
+
+	(c) 2016, FCOO
+
+	https://github.com/FCOO/leaflet-popup-extensions
+	https://github.com/FCOO
+
+
+************************************************/
+.leaflet-popup .leaflet-popup-content-wrapper,
+.leaflet-popup .leaflet-popup-tip {
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: 2px 3px 2px 0 rgba(0, 0, 0, 0.73), 0.5625rem 0.84375rem 0.5625rem 0 rgba(0, 0, 0, 0.13);
+  border-radius: 6px; }
+
+.leaflet-popup .leaflet-popup-content {
+  margin-top: 0 !important; }
+
+.leaflet-popup .leaflet-popup-content-wrapper > div {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 6px; }
+
+.leaflet-popup .leaflet-popup-header {
+  border-bottom: 1px solid #e5e5e5;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 !important;
+  padding-right: 26px !important;
+  padding-left: 4px !important;
+  font-size: 13px;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; }
+  .leaflet-popup .leaflet-popup-header.icon i {
+    height: 18px;
+    padding-right: 4px !important;
+    width: auto; }
+
+.leaflet-popup .leaflet-popup-button-container {
+  width: 100%;
+  margin: 0;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  text-align: center;
+  border-top: 1px solid #e5e5e5; }
+  .leaflet-popup .leaflet-popup-button-container .leaflet-bar {
+    display: inline-block;
+    border-radius: 0px !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0;
+    margin: auto; }
