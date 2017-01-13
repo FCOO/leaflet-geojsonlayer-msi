@@ -1,44 +1,43 @@
 {
-    "name": "leaflet-geojsonlayer-msi",
-    "version": "0.3.5",
-    "homepage": "https://github.com/FCOO/leaflet-geojsonlayer-msi",
-    "authors": [
-        "Jesper Larsen jla@fcoo.dk",
-        "Niels Holt nho@fcoo.dk"
-    ],
-    "description": "",
-    "main": [
-        "dist/leaflet-geojsonlayer-msi.js",
-        "dist/leaflet-geojsonlayer-msi.css"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/FCOO/leaflet-geojsonlayer-msi.git"
-    },
-    "dependencies": {
-        "leaflet": "latest",
-        "jquery": "latest",
-        "moment": "latest",
-        "latlng-format": "fcoo/latlng-format",
-        "leaflet-latlng-format": "fcoo/leaflet-latlng-format#^0.5.0",
-        "leaflet-popup-extensions": "fcoo/leaflet-popup-extensions#latest",
-        "leaflet-zoom-modernizr": "fcoo/leaflet-zoom-modernizr#latest"
-    },
-    "devDependencies": {
-        "bourbon": "latest",
-        "modernizr-mixin": "latest",
-        "mathsass": "latest",
-        "modernizr-scss": "FCOO/modernizr-scss#^1.4.3"
-    },
-    "license": "MIT",
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_components",
-        "test",
-        "tests"
-    ],
-    "moduleType": [
-        "es6"
-    ]
+  "name": "leaflet-geojsonlayer-msi",
+  "version": "0.3.6",
+  "homepage": "https://github.com/FCOO/leaflet-geojsonlayer-msi",
+  "authors": [
+    "Jesper Larsen jla@fcoo.dk",
+    "Niels Holt nho@fcoo.dk"
+  ],
+  "description": "",
+  "main": [
+    "dist/leaflet-geojsonlayer-msi.js",
+    "dist/leaflet-geojsonlayer-msi.css"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/FCOO/leaflet-geojsonlayer-msi.git"
+  },
+  "dependencies": {
+    "leaflet": "latest",
+    "jquery": "latest",
+    "moment": "latest",
+    "leaflet-latlng-format": "fcoo/leaflet-latlng-format#^0.5.0",
+    "leaflet-popup-extensions": "fcoo/leaflet-popup-extensions#latest",
+    "leaflet-zoom-modernizr": "fcoo/leaflet-zoom-modernizr#latest"
+  },
+  "devDependencies": {
+    "bourbon": "latest",
+    "modernizr-mixin": "latest",
+    "mathsass": "latest",
+    "modernizr-scss": "FCOO/modernizr-scss#^1.4.3"
+  },
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "moduleType": [
+    "es6"
+  ]
 }

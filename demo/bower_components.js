@@ -10220,275 +10220,6 @@ return jQuery;
 } );
 
 ;
-/****************************************************************************
-latlng-format, a class to validate, format, and transform positions (eq. leaflet LatLng)
-
-    (c) 2015, FCOO
-
-    https://github.com/fcoo/latlng-format
-    https://github.com/fcoo
-
-****************************************************************************/
-
-(function ($, window/*, document, undefined*/) {
-    "use strict";
-
-    //Options for the tree posible formats. Placed in seperate namespace
-    window.LATLNGFORMAT_DMSS = 0; //Degrees Minutes Seconds Decimal Seconds: N65d30'15.3"  d='degree sign'
-    window.LATLNGFORMAT_DMM  = 1; //Degrees Decimal minutes                : N65d30.258'
-    window.LATLNGFORMAT_DD   = 2; //Decimal degrees                        : N41.1234d
-
-    //Determinate the decimal separator. Only "." or "," are used even that Windows (apparantly) accepts up to tree chars
-    var n = 1.1;
-    n = n.toLocaleString();
-    window.LATLNGFORMAT_DEFAULTDECIMALSEPARATOR =
-        n.indexOf('.') > -1 ? '.' :
-        n.indexOf(',') > -1 ? ',' :
-        '.';
-
-    // _split - Input: position (number) Return: {hemisphere, degrees, degreesDecimal, minutes, minutesDecimal, seconds, secondsDecimal}
-    function _split( position ){
-        var result = {};
-        result.hemisphere = position >= 0 ? +1 : -1;
-        position = Math.abs(position);
-        result.degrees = Math.floor(position);
-        result.degreesDecimal = Math.min(9999, Math.round((position - result.degrees)*10000) );
-
-        position = position*60 % 60; //Minutes
-        result.minutes = Math.floor(position);
-        result.minutesDecimal = Math.min( 999, Math.round((position - result.minutes)*1000) );
-
-        position = position*60 % 60; //seconds
-        result.seconds = Math.floor(position);
-        result.secondsDecimal = Math.min( 9, Math.floor/*round*/((position - result.seconds)*10) );
-
-
-        return result;
-    }
-
-    /**********************************************************************
-    LatLngFormat( formatId )
-    **********************************************************************/
-    function LatLngFormat( formatId ){
-        this.options = {
-            decimalSeparator: window.LATLNGFORMAT_DEFAULTDECIMALSEPARATOR,
-            degreeChar            : '&#176;' //or '&deg;'
-        };
-
-        this.setFormat( formatId );
-    }
-
-  // expose access to the constructor
-  window.LatLngFormat = LatLngFormat;
-
-
-    //Extend the prototype
-    window.LatLngFormat.prototype = {
-
-        //**********************************************************
-        //setFormat
-        setFormat: function( formatId ){
-            this.options.formatId = formatId;
-            this._updateFormat();
-        },
-
-        //**********************************************************
-        //setDecimalSeparator
-        setDecimalSeparator: function( decimalSeparator ){
-            this.options.decimalSeparator = decimalSeparator;
-            this._updateFormat();
-        },
-
-        //**********************************************************
-        //valid - Return true if the input is a valid position
-        valid   : function( latLng ){ return Array.isArray(latLng) ? [ this.validLat(latLng[0]), this.validLng(latLng[1]) ] : []; },
-        validLat: function( lat )   { return this._valid( 0, lat ); },
-        validLng: function( lng )   { return this._valid( 1, lng ); },
-
-        //**********************************************************
-        //textToDegrees - Converts value (string masked as editMask) to decimal degrees.
-        textToDegrees   : function( values ){ return Array.isArray(values) ? [ this.textToDegreesLat(values[0]), this.textToDegreesLng(values[1]) ] : []; },
-        textToDegreesLat: function( value  ){ return this._textToDegrees( 0, value ); },
-        textToDegreesLng: function( value  ){ return this._textToDegrees( 1, value ); },
-
-        //**********************************************************
-        //format - Converts number value (signed decimal degrees) to a string, using this.displayMask or this.editMask
-        format   : function( latLng, useEditMask ){ return Array.isArray(latLng) ? [ this.latFormat(latLng[0], useEditMask), this.lngFormat(latLng[1], useEditMask) ] : []; },
-        latFormat: function( lat, useEditMask    ){ return this._format( 0, lat, useEditMask ); },
-        lngFormat: function( lng, useEditMask    ){ return this._format( 1, lng, useEditMask ); },
-
-        //**********************************************************
-        //convert - If value is valid in orgLatlngFormat => convert it to this' format and return it as text-string, else return original input-string
-        convert   : function( values, orgLatLngFormat ){ return Array.isArray(values) ? [ this.convertLat(values[0], orgLatLngFormat), this.convertLng(values[1], orgLatLngFormat) ] : []; },
-        convertLat: function( value, orgLatLngFormat  ){ return this._convert( 0, value, orgLatLngFormat ); },
-        convertLng: function( value, orgLatLngFormat  ){ return this._convert( 1, value, orgLatLngFormat ); },
-
-        //**********************************************************
-        //asText DEPRECATED
-        asText   : function( latLng, useEditMask ){ return this.format   ( latLng, useEditMask ); },
-        asTextLat: function( lat, useEditMask    ){ return this.latFormat( lat,    useEditMask ); },
-        asTextLng: function( lng, useEditMask    ){ return this.lngFormat( lng,    useEditMask ); },
-
-
-        //**********************************************************
-        //_valid - Return true if the positionInput is a valid position
-        _valid: function(regexpIndex, value){
-            //The regexp is prefixed with ^(?: and suffixed with )$ to make it full-match-only.
-            return (new RegExp( '^(?:' + this.options.regexp[regexpIndex] + ')$' )).test(value);
-        },
-
-        //**********************************************************
-        //_ textToDegrees - Converts value (string masked as editMask) to decimal degrees.
-        //Using convertMask to convert the different part of the text. Any space is ignored
-        _textToDegrees: function(regexpIndex,  value){
-            //toDecimal - Convert a integer value v to a decimal. Eq    toDecimal(89)    = 0.89, toDecimal(9) = 0.9, toDecimal(1234)    = 0.1234
-            function toDecimal(v) {
-                var l = v.toString().length;
-                return v / Math.pow(10, l);
-            }
-
-            value = value.toUpperCase().trim();
-            if ((value === '') || !this._valid(regexpIndex,  value))
-                return null;
-
-            //Convert N or E to +1 and S or W to -1
-            var sign = 1;
-            if ( (value.indexOf('S') > -1) || (value.indexOf('W') > -1) )
-                sign = -1;
-
-            var split = value.split(/\D/),
-                    result = 0,
-                    convertMaskIndex = 0,
-                    i, nextValue;
-            for (i=0; i<split.length; i++ ){
-                nextValue = parseInt(split[i]);
-                if (!isNaN(nextValue)){
-                    switch (this.options.convertMask[convertMaskIndex]){
-                        case 'DDD' : result = result + nextValue;                 break;
-                        case 'MM'  : result = result + nextValue/60;              break;
-                        case 'mmm' : result = result + toDecimal(nextValue)/60;   break;
-                        case 's'   : result = result + toDecimal(nextValue)/3600; break;
-                        case 'SS'  : result = result + nextValue/3600;            break;
-                        case 'dddd': result = result + toDecimal(nextValue);      break;
-                    }
-                    convertMaskIndex++;
-                    if (convertMaskIndex >= this.options.convertMask.length)
-                        break;
-                }
-            }
-            return sign*result;
-        },
-
-        //**********************************************************
-        //_format - Converts numberValue (signed decimal degrees) to a string, using this.displayMask or this.editMask
-        _format: function(regexpIndex, numberValue, useEditMask){
-            function trim(value, lgd)  {var result = ''+value; while (result.length < lgd) result = '0'+result; return result; }
-            function append(value, lgd){var result = ''+value; while (result.length < lgd) result = result+'0'; return result; }
-
-            if (typeof numberValue != 'number')
-                return '';
-
-            var parts = _split(numberValue);
-            var result = (useEditMask ? this.options.editMask : this.options.displayMask).replace('H', regexpIndex ? (parts.hemisphere == 1 ? 'E' : 'W') : (parts.hemisphere == 1 ? 'N' : 'S') );
-            result = result.replace(/DDD/ , parts.degrees                   );
-            result = result.replace(/dddd/, append(parts.degreesDecimal,4)  );
-            result = result.replace(/MM/  , trim(parts.minutes, 2)          );
-            result = result.replace(/mmm/ , append(parts.minutesDecimal, 3) );
-            result = result.replace(/SS/  , trim(parts.seconds, 2)          );
-            result = result.replace(/s/   , trim(parts.secondsDecimal, 1)   );
-            return result;
-        },
-
-
-        //**********************************************************
-        //_convert - If value is valid in orgLatlngFormat => convert it to this' format and return it as text-string, else return original input-string
-        _convert: function( regexpIndex, value, orgLatLngFormat){
-            if (orgLatLngFormat && orgLatLngFormat._valid( regexpIndex, value )){
-                var numberValue = orgLatLngFormat._textToDegrees( regexpIndex, value );
-                return this._format( regexpIndex, numberValue, true/*useEditMask*/);
-            }
-            return value;
-        },
-
-
-        //**********************************************************
-        //_updateFormat - Create editMask,convertMask, regexp, placeholder in options based on options.formatId and options.decimalSeparator
-        _updateFormat: function(){
-
-            /*********************************************************
-            Regular expressions for different type of position input
-            The regexp are 'build' using regexp for the sub-parts:
-                H=Hemisphere        : [n,N,s,S]
-                DD=Degrees          : 0-9, 00-09, 10-89
-                dddd=Degrees decimal: 0-9999
-                MM=Minutes          : 0-9, 00-09, 10-59
-                SS=Seconds          : 0-59
-                .=seperator         : blank, "." or ","
-                mmm=decimal min     :    0-999
-            *********************************************************/
-            var _regexp = {
-                anySpace      : '\\s*',
-                hemisphereLat : '([nNsS])?',    //H=Hemisphere  : [n,N,s,S] (optional,
-                hemisphereLong: '([eEwW])?',    //H=Hemisphere : [e,E,w,W] (optional,
-
-                DD            : '((0?[0-9])|[1-8][0-9])',  //DD=Degrees 0-89        :    0-9, 00-09 or 10-89
-                DDD           : '((\\d?\\d)|1[0-7][0-9])', //DDD=Degrees 0-179    :    0-9, 00-99 or 100-179
-
-                MM            : '\\s' + '((0?[0-9])|[1-5][0-9])', //MM=Minutes: 0-9, 00-09 or 10-59 (allways with a seperator in front)
-            };
-            _regexp.SS        = _regexp.MM;
-            _regexp.seperator = _regexp.anySpace + '[\\s\\.,]' + _regexp.anySpace; //seperator: blank, "." or ",". Allow any number of spac,
-
-            _regexp.dddd      = '(' + _regexp.seperator + '\\d{1,4}' + ')?'; //dddd=decimal degrees (0-9999) optional
-
-            _regexp.MMmmm     = '(' + _regexp.MM + '(' + _regexp.seperator + '\\d{1,3}' + ')?' + ')?';                           //MMmmm=Minutes and Decimal minutes = [MM[0-999]]
-            _regexp.MMSSs     = '(' + _regexp.MM + '(' + _regexp.SS + '(' + _regexp.seperator + '\\d{1,1}' + ')?' + ')?' + ')?'; //MMSSss= Minutes Second and Decimal Seconds = [MM[ SS[0-99]]]
-
-            var dS = this.options.decimalSeparator,
-                dC = this.options.degreeChar,
-                newOptions = {};
-
-            switch (this.options.formatId){
-                case window.LATLNGFORMAT_DMSS:
-                    newOptions = { //Degrees Minutes Seconds (N41d25'01")
-                        displayMask: "DDD"+dC+"MM'SS"+dS+"s\"H",
-                        editMask   : "DDD MM SS"+dS+"sH",
-                        convertMask: ['DDD', 'MM', 'SS', 's'],
-                        regexp     : [ _regexp.anySpace + '(90|'  + _regexp.DD  + _regexp.anySpace + _regexp.MMSSs + ')' + _regexp.anySpace + _regexp.hemisphereLat  + _regexp.anySpace,
-                                       _regexp.anySpace + '(180|' + _regexp.DDD + _regexp.anySpace + _regexp.MMSSs + ')' + _regexp.anySpace + _regexp.hemisphereLong + _regexp.anySpace  ],
-                        placeholder: ["89 59 59"+dS+"9N", "179 59 59"+dS+"9E"],
-                    };
-                    break;
-
-                case window.LATLNGFORMAT_DMM:
-                    newOptions = { //Degrees Decimal minutes (N41d25.123')
-                        displayMask: "DDD"+dC+"MM"+dS+"mmm'H",
-                        editMask   : "DDD MM"+dS+"mmmH",
-                        convertMask: ['DDD', 'MM', 'mmm'],
-                        regexp     : [ _regexp.anySpace + '(90|'  + _regexp.DD  + _regexp.anySpace + _regexp.MMmmm + ')' + _regexp.anySpace + _regexp.hemisphereLat  + _regexp.anySpace,
-                                       _regexp.anySpace + '(180|' + _regexp.DDD + _regexp.anySpace + _regexp.MMmmm + ')' + _regexp.anySpace + _regexp.hemisphereLong + _regexp.anySpace  ],
-                        placeholder: ["89 59"+dS+"999N", "179 59"+dS+"999E"],
-                    };
-                    break;
-
-                case window.LATLNGFORMAT_DD:
-                    newOptions = { //Decimal degrees (N41.1234d)
-                        displayMask: "DDD"+dS+"dddd"+dC+"H",
-                        editMask   : "DDD"+dS+"ddddH",
-                        convertMask: ['DDD', 'dddd'],
-                        regexp     : [ _regexp.anySpace + '(90|'  + _regexp.DD  + _regexp.anySpace + _regexp.dddd + ')' + _regexp.anySpace + _regexp.hemisphereLat  + _regexp.anySpace,
-                                       _regexp.anySpace + '(180|' + _regexp.DDD + _regexp.anySpace + _regexp.dddd + ')' + _regexp.anySpace + _regexp.hemisphereLong + _regexp.anySpace  ],
-                        placeholder: ["89.9999N", "179.9999E"],
-                    };
-                    break;
-            }
-
-            $.extend( this.options, newOptions );
-        }
-    };
-
-}(jQuery, this, document));
-;
 /*
  Leaflet 1.0.2, a JS library for interactive maps. http://leafletjs.com
  (c) 2010-2016 Vladimir Agafonkin, (c) 2010-2011 CloudMade
@@ -23661,6 +23392,275 @@ L.control.layers = function (baseLayers, overlays, options) {
 //# sourceMappingURL=leaflet-src.map
 ;
 /****************************************************************************
+latlng-format, a class to validate, format, and transform positions (eq. leaflet LatLng)
+
+    (c) 2015, FCOO
+
+    https://github.com/fcoo/latlng-format
+    https://github.com/fcoo
+
+****************************************************************************/
+
+(function ($, window/*, document, undefined*/) {
+    "use strict";
+
+    //Options for the tree posible formats. Placed in seperate namespace
+    window.LATLNGFORMAT_DMSS = 0; //Degrees Minutes Seconds Decimal Seconds: N65d30'15.3"  d='degree sign'
+    window.LATLNGFORMAT_DMM  = 1; //Degrees Decimal minutes                : N65d30.258'
+    window.LATLNGFORMAT_DD   = 2; //Decimal degrees                        : N41.1234d
+
+    //Determinate the decimal separator. Only "." or "," are used even that Windows (apparantly) accepts up to tree chars
+    var n = 1.1;
+    n = n.toLocaleString();
+    window.LATLNGFORMAT_DEFAULTDECIMALSEPARATOR =
+        n.indexOf('.') > -1 ? '.' :
+        n.indexOf(',') > -1 ? ',' :
+        '.';
+
+    // _split - Input: position (number) Return: {hemisphere, degrees, degreesDecimal, minutes, minutesDecimal, seconds, secondsDecimal}
+    function _split( position ){
+        var result = {};
+        result.hemisphere = position >= 0 ? +1 : -1;
+        position = Math.abs(position);
+        result.degrees = Math.floor(position);
+        result.degreesDecimal = Math.min(9999, Math.round((position - result.degrees)*10000) );
+
+        position = position*60 % 60; //Minutes
+        result.minutes = Math.floor(position);
+        result.minutesDecimal = Math.min( 999, Math.round((position - result.minutes)*1000) );
+
+        position = position*60 % 60; //seconds
+        result.seconds = Math.floor(position);
+        result.secondsDecimal = Math.min( 9, Math.floor/*round*/((position - result.seconds)*10) );
+
+
+        return result;
+    }
+
+    /**********************************************************************
+    LatLngFormat( formatId )
+    **********************************************************************/
+    function LatLngFormat( formatId ){
+        this.options = {
+            decimalSeparator: window.LATLNGFORMAT_DEFAULTDECIMALSEPARATOR,
+            degreeChar            : '&#176;' //or '&deg;'
+        };
+
+        this.setFormat( formatId );
+    }
+
+  // expose access to the constructor
+  window.LatLngFormat = LatLngFormat;
+
+
+    //Extend the prototype
+    window.LatLngFormat.prototype = {
+
+        //**********************************************************
+        //setFormat
+        setFormat: function( formatId ){
+            this.options.formatId = formatId;
+            this._updateFormat();
+        },
+
+        //**********************************************************
+        //setDecimalSeparator
+        setDecimalSeparator: function( decimalSeparator ){
+            this.options.decimalSeparator = decimalSeparator;
+            this._updateFormat();
+        },
+
+        //**********************************************************
+        //valid - Return true if the input is a valid position
+        valid   : function( latLng ){ return Array.isArray(latLng) ? [ this.validLat(latLng[0]), this.validLng(latLng[1]) ] : []; },
+        validLat: function( lat )   { return this._valid( 0, lat ); },
+        validLng: function( lng )   { return this._valid( 1, lng ); },
+
+        //**********************************************************
+        //textToDegrees - Converts value (string masked as editMask) to decimal degrees.
+        textToDegrees   : function( values ){ return Array.isArray(values) ? [ this.textToDegreesLat(values[0]), this.textToDegreesLng(values[1]) ] : []; },
+        textToDegreesLat: function( value  ){ return this._textToDegrees( 0, value ); },
+        textToDegreesLng: function( value  ){ return this._textToDegrees( 1, value ); },
+
+        //**********************************************************
+        //format - Converts number value (signed decimal degrees) to a string, using this.displayMask or this.editMask
+        format   : function( latLng, useEditMask ){ return Array.isArray(latLng) ? [ this.latFormat(latLng[0], useEditMask), this.lngFormat(latLng[1], useEditMask) ] : []; },
+        latFormat: function( lat, useEditMask    ){ return this._format( 0, lat, useEditMask ); },
+        lngFormat: function( lng, useEditMask    ){ return this._format( 1, lng, useEditMask ); },
+
+        //**********************************************************
+        //convert - If value is valid in orgLatlngFormat => convert it to this' format and return it as text-string, else return original input-string
+        convert   : function( values, orgLatLngFormat ){ return Array.isArray(values) ? [ this.convertLat(values[0], orgLatLngFormat), this.convertLng(values[1], orgLatLngFormat) ] : []; },
+        convertLat: function( value, orgLatLngFormat  ){ return this._convert( 0, value, orgLatLngFormat ); },
+        convertLng: function( value, orgLatLngFormat  ){ return this._convert( 1, value, orgLatLngFormat ); },
+
+        //**********************************************************
+        //asText DEPRECATED
+        asText   : function( latLng, useEditMask ){ return this.format   ( latLng, useEditMask ); },
+        asTextLat: function( lat, useEditMask    ){ return this.latFormat( lat,    useEditMask ); },
+        asTextLng: function( lng, useEditMask    ){ return this.lngFormat( lng,    useEditMask ); },
+
+
+        //**********************************************************
+        //_valid - Return true if the positionInput is a valid position
+        _valid: function(regexpIndex, value){
+            //The regexp is prefixed with ^(?: and suffixed with )$ to make it full-match-only.
+            return (new RegExp( '^(?:' + this.options.regexp[regexpIndex] + ')$' )).test(value);
+        },
+
+        //**********************************************************
+        //_ textToDegrees - Converts value (string masked as editMask) to decimal degrees.
+        //Using convertMask to convert the different part of the text. Any space is ignored
+        _textToDegrees: function(regexpIndex,  value){
+            //toDecimal - Convert a integer value v to a decimal. Eq    toDecimal(89)    = 0.89, toDecimal(9) = 0.9, toDecimal(1234)    = 0.1234
+            function toDecimal(v) {
+                var l = v.toString().length;
+                return v / Math.pow(10, l);
+            }
+
+            value = value.toUpperCase().trim();
+            if ((value === '') || !this._valid(regexpIndex,  value))
+                return null;
+
+            //Convert N or E to +1 and S or W to -1
+            var sign = 1;
+            if ( (value.indexOf('S') > -1) || (value.indexOf('W') > -1) )
+                sign = -1;
+
+            var split = value.split(/\D/),
+                    result = 0,
+                    convertMaskIndex = 0,
+                    i, nextValue;
+            for (i=0; i<split.length; i++ ){
+                nextValue = parseInt(split[i]);
+                if (!isNaN(nextValue)){
+                    switch (this.options.convertMask[convertMaskIndex]){
+                        case 'DDD' : result = result + nextValue;                 break;
+                        case 'MM'  : result = result + nextValue/60;              break;
+                        case 'mmm' : result = result + toDecimal(nextValue)/60;   break;
+                        case 's'   : result = result + toDecimal(nextValue)/3600; break;
+                        case 'SS'  : result = result + nextValue/3600;            break;
+                        case 'dddd': result = result + toDecimal(nextValue);      break;
+                    }
+                    convertMaskIndex++;
+                    if (convertMaskIndex >= this.options.convertMask.length)
+                        break;
+                }
+            }
+            return sign*result;
+        },
+
+        //**********************************************************
+        //_format - Converts numberValue (signed decimal degrees) to a string, using this.displayMask or this.editMask
+        _format: function(regexpIndex, numberValue, useEditMask){
+            function trim(value, lgd)  {var result = ''+value; while (result.length < lgd) result = '0'+result; return result; }
+            function append(value, lgd){var result = ''+value; while (result.length < lgd) result = result+'0'; return result; }
+
+            if (typeof numberValue != 'number')
+                return '';
+
+            var parts = _split(numberValue);
+            var result = (useEditMask ? this.options.editMask : this.options.displayMask).replace('H', regexpIndex ? (parts.hemisphere == 1 ? 'E' : 'W') : (parts.hemisphere == 1 ? 'N' : 'S') );
+            result = result.replace(/DDD/ , parts.degrees                   );
+            result = result.replace(/dddd/, append(parts.degreesDecimal,4)  );
+            result = result.replace(/MM/  , trim(parts.minutes, 2)          );
+            result = result.replace(/mmm/ , append(parts.minutesDecimal, 3) );
+            result = result.replace(/SS/  , trim(parts.seconds, 2)          );
+            result = result.replace(/s/   , trim(parts.secondsDecimal, 1)   );
+            return result;
+        },
+
+
+        //**********************************************************
+        //_convert - If value is valid in orgLatlngFormat => convert it to this' format and return it as text-string, else return original input-string
+        _convert: function( regexpIndex, value, orgLatLngFormat){
+            if (orgLatLngFormat && orgLatLngFormat._valid( regexpIndex, value )){
+                var numberValue = orgLatLngFormat._textToDegrees( regexpIndex, value );
+                return this._format( regexpIndex, numberValue, true/*useEditMask*/);
+            }
+            return value;
+        },
+
+
+        //**********************************************************
+        //_updateFormat - Create editMask,convertMask, regexp, placeholder in options based on options.formatId and options.decimalSeparator
+        _updateFormat: function(){
+
+            /*********************************************************
+            Regular expressions for different type of position input
+            The regexp are 'build' using regexp for the sub-parts:
+                H=Hemisphere        : [n,N,s,S]
+                DD=Degrees          : 0-9, 00-09, 10-89
+                dddd=Degrees decimal: 0-9999
+                MM=Minutes          : 0-9, 00-09, 10-59
+                SS=Seconds          : 0-59
+                .=seperator         : blank, "." or ","
+                mmm=decimal min     :    0-999
+            *********************************************************/
+            var _regexp = {
+                anySpace      : '\\s*',
+                hemisphereLat : '([nNsS])?',    //H=Hemisphere  : [n,N,s,S] (optional,
+                hemisphereLong: '([eEwW])?',    //H=Hemisphere : [e,E,w,W] (optional,
+
+                DD            : '((0?[0-9])|[1-8][0-9])',  //DD=Degrees 0-89        :    0-9, 00-09 or 10-89
+                DDD           : '((\\d?\\d)|1[0-7][0-9])', //DDD=Degrees 0-179    :    0-9, 00-99 or 100-179
+
+                MM            : '\\s' + '((0?[0-9])|[1-5][0-9])', //MM=Minutes: 0-9, 00-09 or 10-59 (allways with a seperator in front)
+            };
+            _regexp.SS        = _regexp.MM;
+            _regexp.seperator = _regexp.anySpace + '[\\s\\.,]' + _regexp.anySpace; //seperator: blank, "." or ",". Allow any number of spac,
+
+            _regexp.dddd      = '(' + _regexp.seperator + '\\d{1,4}' + ')?'; //dddd=decimal degrees (0-9999) optional
+
+            _regexp.MMmmm     = '(' + _regexp.MM + '(' + _regexp.seperator + '\\d{1,3}' + ')?' + ')?';                           //MMmmm=Minutes and Decimal minutes = [MM[0-999]]
+            _regexp.MMSSs     = '(' + _regexp.MM + '(' + _regexp.SS + '(' + _regexp.seperator + '\\d{1,1}' + ')?' + ')?' + ')?'; //MMSSss= Minutes Second and Decimal Seconds = [MM[ SS[0-99]]]
+
+            var dS = this.options.decimalSeparator,
+                dC = this.options.degreeChar,
+                newOptions = {};
+
+            switch (this.options.formatId){
+                case window.LATLNGFORMAT_DMSS:
+                    newOptions = { //Degrees Minutes Seconds (N41d25'01")
+                        displayMask: "DDD"+dC+"MM'SS"+dS+"s\"H",
+                        editMask   : "DDD MM SS"+dS+"sH",
+                        convertMask: ['DDD', 'MM', 'SS', 's'],
+                        regexp     : [ _regexp.anySpace + '(90|'  + _regexp.DD  + _regexp.anySpace + _regexp.MMSSs + ')' + _regexp.anySpace + _regexp.hemisphereLat  + _regexp.anySpace,
+                                       _regexp.anySpace + '(180|' + _regexp.DDD + _regexp.anySpace + _regexp.MMSSs + ')' + _regexp.anySpace + _regexp.hemisphereLong + _regexp.anySpace  ],
+                        placeholder: ["89 59 59"+dS+"9N", "179 59 59"+dS+"9E"],
+                    };
+                    break;
+
+                case window.LATLNGFORMAT_DMM:
+                    newOptions = { //Degrees Decimal minutes (N41d25.123')
+                        displayMask: "DDD"+dC+"MM"+dS+"mmm'H",
+                        editMask   : "DDD MM"+dS+"mmmH",
+                        convertMask: ['DDD', 'MM', 'mmm'],
+                        regexp     : [ _regexp.anySpace + '(90|'  + _regexp.DD  + _regexp.anySpace + _regexp.MMmmm + ')' + _regexp.anySpace + _regexp.hemisphereLat  + _regexp.anySpace,
+                                       _regexp.anySpace + '(180|' + _regexp.DDD + _regexp.anySpace + _regexp.MMmmm + ')' + _regexp.anySpace + _regexp.hemisphereLong + _regexp.anySpace  ],
+                        placeholder: ["89 59"+dS+"999N", "179 59"+dS+"999E"],
+                    };
+                    break;
+
+                case window.LATLNGFORMAT_DD:
+                    newOptions = { //Decimal degrees (N41.1234d)
+                        displayMask: "DDD"+dS+"dddd"+dC+"H",
+                        editMask   : "DDD"+dS+"ddddH",
+                        convertMask: ['DDD', 'dddd'],
+                        regexp     : [ _regexp.anySpace + '(90|'  + _regexp.DD  + _regexp.anySpace + _regexp.dddd + ')' + _regexp.anySpace + _regexp.hemisphereLat  + _regexp.anySpace,
+                                       _regexp.anySpace + '(180|' + _regexp.DDD + _regexp.anySpace + _regexp.dddd + ')' + _regexp.anySpace + _regexp.hemisphereLong + _regexp.anySpace  ],
+                        placeholder: ["89.9999N", "179.9999E"],
+                    };
+                    break;
+            }
+
+            $.extend( this.options, newOptions );
+        }
+    };
+
+}(jQuery, this, document));
+;
+/****************************************************************************
     leaflet-latlng-format.js,
 
     (c) 2016, FCOO
@@ -28645,960 +28645,3 @@ hooks.prototype             = proto;
 return hooks;
 
 })));
-
-;
-/*! @preserve
- * numeral.js
- * version : 2.0.4
- * author : Adam Draper
- * license : MIT
- * http://adamwdraper.github.com/Numeral-js/
- */
-
-(function (global, factory) {
-    if (typeof define === 'function' && define.amd) {
-        define(factory);
-    } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory();
-    } else {
-        global.numeral = factory();
-    }
-}(this, function () {
-    /************************************
-        Variables
-    ************************************/
-
-    var numeral,
-        _,
-        VERSION = '2.0.4',
-        formats = {},
-        locales = {},
-        defaults = {
-            currentLocale: 'en',
-            zeroFormat: null,
-            nullFormat: null,
-            defaultFormat: '0,0'
-        },
-        options = {
-            currentLocale: defaults.currentLocale,
-            zeroFormat: defaults.zeroFormat,
-            nullFormat: defaults.nullFormat,
-            defaultFormat: defaults.defaultFormat
-        };
-
-
-    /************************************
-        Constructors
-    ************************************/
-
-    // Numeral prototype object
-    function Numeral(input, number) {
-        this._input = input;
-
-        this._value = number;
-    }
-
-    numeral = function(input) {
-        var value,
-            kind,
-            unformatFunction,
-            regexp;
-
-        if (numeral.isNumeral(input)) {
-            value = input.value();
-        } else if (input === 0 || typeof input === 'undefined') {
-            value = 0;
-        } else if (input === null || _.isNaN(input)) {
-            value = null;
-        } else if (typeof input === 'string') {
-            if (options.zeroFormat && input === options.zeroFormat) {
-                value = 0;
-            } else if (options.nullFormat && input === options.nullFormat || !input.replace(/[^0-9]+/g, '').length) {
-                value = null;
-            } else {
-                for (kind in formats) {
-                    regexp = typeof formats[kind].regexps.unformat === 'function' ? formats[kind].regexps.unformat() : formats[kind].regexps.unformat;
-
-                    if (regexp && input.match(regexp)) {
-                        unformatFunction = formats[kind].unformat;
-
-                        break;
-                    }
-                }
-
-                unformatFunction = unformatFunction || numeral._.stringToNumber;
-
-                value = unformatFunction(input);
-            }
-        } else {
-            value = Number(input)|| null;
-        }
-
-        return new Numeral(input, value);
-    };
-
-    // version number
-    numeral.version = VERSION;
-
-    // compare numeral object
-    numeral.isNumeral = function(obj) {
-        return obj instanceof Numeral;
-    };
-
-    // helper functions
-    numeral._ = _ = {
-        // formats numbers separators, decimals places, signs, abbreviations
-        numberToFormat: function(value, format, roundingFunction) {
-            var locale = locales[numeral.options.currentLocale],
-                negP = false,
-                optDec = false,
-                abbr = '',
-                trillion = 1000000000000,
-                billion = 1000000000,
-                million = 1000000,
-                thousand = 1000,
-                decimal = '',
-                neg = false,
-                abbrForce, // force abbreviation
-                abs,
-                min,
-                max,
-                power,
-                int,
-                precision,
-                signed,
-                thousands,
-                output;
-
-            // make sure we never format a null value
-            value = value || 0;
-
-            abs = Math.abs(value);
-
-            // see if we should use parentheses for negative number or if we should prefix with a sign
-            // if both are present we default to parentheses
-            if (numeral._.includes(format, '(')) {
-                negP = true;
-                format = format.replace(/[\(|\)]/g, '');
-            } else if (numeral._.includes(format, '+') || numeral._.includes(format, '-')) {
-                signed = numeral._.includes(format, '+') ? format.indexOf('+') : value < 0 ? format.indexOf('-') : -1;
-                format = format.replace(/[\+|\-]/g, '');
-            }
-
-            // see if abbreviation is wanted
-            if (numeral._.includes(format, 'a')) {
-                abbrForce = format.match(/a(k|m|b|t)?/);
-
-                abbrForce = abbrForce ? abbrForce[1] : false;
-
-                // check for space before abbreviation
-                if (numeral._.includes(format, ' a')) {
-                    abbr = ' ';
-                }
-
-                format = format.replace(new RegExp(abbr + 'a[kmbt]?'), '');
-
-                if (abs >= trillion && !abbrForce || abbrForce === 't') {
-                    // trillion
-                    abbr += locale.abbreviations.trillion;
-                    value = value / trillion;
-                } else if (abs < trillion && abs >= billion && !abbrForce || abbrForce === 'b') {
-                    // billion
-                    abbr += locale.abbreviations.billion;
-                    value = value / billion;
-                } else if (abs < billion && abs >= million && !abbrForce || abbrForce === 'm') {
-                    // million
-                    abbr += locale.abbreviations.million;
-                    value = value / million;
-                } else if (abs < million && abs >= thousand && !abbrForce || abbrForce === 'k') {
-                    // thousand
-                    abbr += locale.abbreviations.thousand;
-                    value = value / thousand;
-                }
-            }
-
-            // check for optional decimals
-            if (numeral._.includes(format, '[.]')) {
-                optDec = true;
-                format = format.replace('[.]', '.');
-            }
-
-            // break number and format
-            int = value.toString().split('.')[0];
-            precision = format.split('.')[1];
-            thousands = format.indexOf(',');
-
-            if (precision) {
-                if (numeral._.includes(precision, '[')) {
-                    precision = precision.replace(']', '');
-                    precision = precision.split('[');
-                    decimal = numeral._.toFixed(value, (precision[0].length + precision[1].length), roundingFunction, precision[1].length);
-                } else {
-                    decimal = numeral._.toFixed(value, precision.length, roundingFunction);
-                }
-
-                int = decimal.split('.')[0];
-
-                if (numeral._.includes(decimal, '.')) {
-                    decimal = locale.delimiters.decimal + decimal.split('.')[1];
-                } else {
-                    decimal = '';
-                }
-
-                if (optDec && Number(decimal.slice(1)) === 0) {
-                    decimal = '';
-                }
-            } else {
-                int = numeral._.toFixed(value, null, roundingFunction);
-            }
-
-            // check abbreviation again after rounding
-            if (abbr && !abbrForce && Number(int) >= 1000 && abbr !== locale.abbreviations.trillion) {
-                int = String(Number(int) / 1000);
-
-                switch (abbr) {
-                    case locale.abbreviations.thousand:
-                        abbr = locale.abbreviations.million;
-                        break;
-                    case locale.abbreviations.million:
-                        abbr = locale.abbreviations.billion;
-                        break;
-                    case locale.abbreviations.billion:
-                        abbr = locale.abbreviations.trillion;
-                        break;
-                }
-            }
-
-
-            // format number
-            if (numeral._.includes(int, '-')) {
-                int = int.slice(1);
-                neg = true;
-            }
-
-            if (thousands > -1) {
-                int = int.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + locale.delimiters.thousands);
-            }
-
-            if (format.indexOf('.') === 0) {
-                int = '';
-            }
-
-            output = int + decimal + (abbr ? abbr : '');
-
-            if (negP) {
-                output = (negP && neg ? '(' : '') + output + (negP && neg ? ')' : '');
-            } else {
-                if (signed >= 0) {
-                    output = signed === 0 ? (neg ? '-' : '+') + output : output + (neg ? '-' : '+');
-                } else if (neg) {
-                    output = '-' + output;
-                }
-            }
-
-            return output;
-        },
-        // unformats numbers separators, decimals places, signs, abbreviations
-        stringToNumber: function(string) {
-            var locale = locales[options.currentLocale],
-                stringOriginal = string,
-                abbreviations = {
-                    thousand: 3,
-                    million: 6,
-                    billion: 9,
-                    trillion: 12
-                },
-                abbreviation,
-                value,
-                i,
-                regexp;
-
-            if (options.zeroFormat && string === options.zeroFormat) {
-                value = 0;
-            } else if (options.nullFormat && string === options.nullFormat || !string.replace(/[^0-9]+/g, '').length) {
-                value = null;
-            } else {
-                value = 1;
-
-                if (locale.delimiters.decimal !== '.') {
-                    string = string.replace(/\./g, '').replace(locale.delimiters.decimal, '.');
-                }
-
-                for (abbreviation in abbreviations) {
-                    regexp = new RegExp('[^a-zA-Z]' + locale.abbreviations[abbreviation] + '(?:\\)|(\\' + locale.currency.symbol + ')?(?:\\))?)?$');
-
-                    if (stringOriginal.match(regexp)) {
-                        value *= Math.pow(10, abbreviations[abbreviation]);
-                        break;
-                    }
-                }
-
-                // check for negative number
-                value *= (string.split('-').length + Math.min(string.split('(').length - 1, string.split(')').length - 1)) % 2 ? 1 : -1;
-
-                // remove non numbers
-                string = string.replace(/[^0-9\.]+/g, '');
-
-                value *= Number(string);
-            }
-
-            return value;
-        },
-        isNaN: function(value) {
-            return typeof value === 'number' && isNaN(value);
-        },
-        includes: function(string, search) {
-            return string.indexOf(search) !== -1;
-        },
-        insert: function(string, subString, start) {
-            return string.slice(0, start) + subString + string.slice(start);
-        },
-        reduce: function(array, callback /*, initialValue*/) {
-            if (this === null) {
-                throw new TypeError('Array.prototype.reduce called on null or undefined');
-            }
-
-            if (typeof callback !== 'function') {
-                throw new TypeError(callback + ' is not a function');
-            }
-
-            var t = Object(array),
-                len = t.length >>> 0,
-                k = 0,
-                value;
-
-            if (arguments.length === 3) {
-                value = arguments[2];
-            } else {
-                while (k < len && !(k in t)) {
-                    k++;
-                }
-
-                if (k >= len) {
-                    throw new TypeError('Reduce of empty array with no initial value');
-                }
-
-                value = t[k++];
-            }
-            for (; k < len; k++) {
-                if (k in t) {
-                    value = callback(value, t[k], k, t);
-                }
-            }
-            return value;
-        },
-        /**
-         * Computes the multiplier necessary to make x >= 1,
-         * effectively eliminating miscalculations caused by
-         * finite precision.
-         */
-        multiplier: function (x) {
-            var parts = x.toString().split('.');
-
-            return parts.length < 2 ? 1 : Math.pow(10, parts[1].length);
-        },
-        /**
-         * Given a variable number of arguments, returns the maximum
-         * multiplier that must be used to normalize an operation involving
-         * all of them.
-         */
-        correctionFactor: function () {
-            var args = Array.prototype.slice.call(arguments);
-
-            return args.reduce(function(accum, next) {
-                var mn = _.multiplier(next);
-                return accum > mn ? accum : mn;
-            }, 1);
-        },
-        /**
-         * Implementation of toFixed() that treats floats more like decimals
-         *
-         * Fixes binary rounding issues (eg. (0.615).toFixed(2) === '0.61') that present
-         * problems for accounting- and finance-related software.
-         */
-        toFixed: function(value, maxDecimals, roundingFunction, optionals) {
-            var splitValue = value.toString().split('.'),
-                minDecimals = maxDecimals - (optionals || 0),
-                boundedPrecision,
-                optionalsRegExp,
-                power,
-                output;
-
-            // Use the smallest precision value possible to avoid errors from floating point representation
-            if (splitValue.length === 2) {
-              boundedPrecision = Math.min(Math.max(splitValue[1].length, minDecimals), maxDecimals);
-            } else {
-              boundedPrecision = minDecimals;
-            }
-
-            power = Math.pow(10, boundedPrecision);
-
-            //roundingFunction = (roundingFunction !== undefined ? roundingFunction : Math.round);
-            // Multiply up by precision, round accurately, then divide and use native toFixed():
-            output = (roundingFunction(value * power) / power).toFixed(boundedPrecision);
-
-            if (optionals > maxDecimals - boundedPrecision) {
-                optionalsRegExp = new RegExp('\\.?0{1,' + (optionals - (maxDecimals - boundedPrecision)) + '}$');
-                output = output.replace(optionalsRegExp, '');
-            }
-
-            return output;
-        }
-    };
-
-    // avaliable options
-    numeral.options = options;
-
-    // avaliable formats
-    numeral.formats = formats;
-
-    // avaliable formats
-    numeral.locales = locales;
-
-    // This function sets the current locale.  If
-    // no arguments are passed in, it will simply return the current global
-    // locale key.
-    numeral.locale = function(key) {
-        if (key) {
-            options.currentLocale = key.toLowerCase();
-        }
-
-        return options.currentLocale;
-    };
-
-    // This function provides access to the loaded locale data.  If
-    // no arguments are passed in, it will simply return the current
-    // global locale object.
-    numeral.localeData = function(key) {
-        if (!key) {
-            return locales[options.currentLocale];
-        }
-
-        key = key.toLowerCase();
-
-        if (!locales[key]) {
-            throw new Error('Unknown locale : ' + key);
-        }
-
-        return locales[key];
-    };
-
-    numeral.reset = function() {
-        for (var property in defaults) {
-            options[property] = defaults[property];
-        }
-    };
-
-    numeral.zeroFormat = function(format) {
-        options.zeroFormat = typeof(format) === 'string' ? format : null;
-    };
-
-    numeral.nullFormat = function (format) {
-        options.nullFormat = typeof(format) === 'string' ? format : null;
-    };
-
-    numeral.defaultFormat = function(format) {
-        options.defaultFormat = typeof(format) === 'string' ? format : '0.0';
-    };
-
-    numeral.register = function(type, name, format) {
-        name = name.toLowerCase();
-
-        if (this[type + 's'][name]) {
-            throw new TypeError(name + ' ' + type + ' already registered.');
-        }
-
-        this[type + 's'][name] = format;
-
-        return format;
-    };
-
-
-    numeral.validate = function(val, culture) {
-        var _decimalSep,
-            _thousandSep,
-            _currSymbol,
-            _valArray,
-            _abbrObj,
-            _thousandRegEx,
-            localeData,
-            temp;
-
-        //coerce val to string
-        if (typeof val !== 'string') {
-            val += '';
-
-            if (console.warn) {
-                console.warn('Numeral.js: Value is not string. It has been co-erced to: ', val);
-            }
-        }
-
-        //trim whitespaces from either sides
-        val = val.trim();
-
-        //if val is just digits return true
-        if (!!val.match(/^\d+$/)) {
-            return true;
-        }
-
-        //if val is empty return false
-        if (val === '') {
-            return false;
-        }
-
-        //get the decimal and thousands separator from numeral.localeData
-        try {
-            //check if the culture is understood by numeral. if not, default it to current locale
-            localeData = numeral.localeData(culture);
-        } catch (e) {
-            localeData = numeral.localeData(numeral.locale());
-        }
-
-        //setup the delimiters and currency symbol based on culture/locale
-        _currSymbol = localeData.currency.symbol;
-        _abbrObj = localeData.abbreviations;
-        _decimalSep = localeData.delimiters.decimal;
-        if (localeData.delimiters.thousands === '.') {
-            _thousandSep = '\\.';
-        } else {
-            _thousandSep = localeData.delimiters.thousands;
-        }
-
-        // validating currency symbol
-        temp = val.match(/^[^\d]+/);
-        if (temp !== null) {
-            val = val.substr(1);
-            if (temp[0] !== _currSymbol) {
-                return false;
-            }
-        }
-
-        //validating abbreviation symbol
-        temp = val.match(/[^\d]+$/);
-        if (temp !== null) {
-            val = val.slice(0, -1);
-            if (temp[0] !== _abbrObj.thousand && temp[0] !== _abbrObj.million && temp[0] !== _abbrObj.billion && temp[0] !== _abbrObj.trillion) {
-                return false;
-            }
-        }
-
-        _thousandRegEx = new RegExp(_thousandSep + '{2}');
-
-        if (!val.match(/[^\d.,]/g)) {
-            _valArray = val.split(_decimalSep);
-            if (_valArray.length > 2) {
-                return false;
-            } else {
-                if (_valArray.length < 2) {
-                    return ( !! _valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx));
-                } else {
-                    if (_valArray[0].length === 1) {
-                        return ( !! _valArray[0].match(/^\d+$/) && !_valArray[0].match(_thousandRegEx) && !! _valArray[1].match(/^\d+$/));
-                    } else {
-                        return ( !! _valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx) && !! _valArray[1].match(/^\d+$/));
-                    }
-                }
-            }
-        }
-
-        return false;
-    };
-
-
-    /************************************
-        Numeral Prototype
-    ************************************/
-
-    numeral.fn = Numeral.prototype = {
-        clone: function() {
-            return numeral(this);
-        },
-        format: function(inputString, roundingFunction) {
-            var value = this._value,
-                format = inputString || options.defaultFormat,
-                kind,
-                output,
-                formatFunction;
-
-            // make sure we have a roundingFunction
-            roundingFunction = roundingFunction || Math.round;
-
-            // format based on value
-            if (value === 0 && options.zeroFormat !== null) {
-                output = options.zeroFormat;
-            } else if (value === null && options.nullFormat !== null) {
-                output = options.nullFormat;
-            } else {
-                for (kind in formats) {
-                    if (format.match(formats[kind].regexps.format)) {
-                        formatFunction = formats[kind].format;
-
-                        break;
-                    }
-                }
-
-                formatFunction = formatFunction || numeral._.numberToFormat;
-
-                output = formatFunction(value, format, roundingFunction);
-            }
-
-            return output;
-        },
-        value: function() {
-            return this._value;
-        },
-        input: function() {
-            return this._input;
-        },
-        set: function(value) {
-            this._value = Number(value);
-
-            return this;
-        },
-        add: function(value) {
-            var corrFactor = _.correctionFactor.call(null, this._value, value);
-
-            function cback(accum, curr, currI, O) {
-                return accum + Math.round(corrFactor * curr);
-            }
-
-            this._value = _.reduce([this._value, value], cback, 0) / corrFactor;
-
-            return this;
-        },
-        subtract: function(value) {
-            var corrFactor = _.correctionFactor.call(null, this._value, value);
-
-            function cback(accum, curr, currI, O) {
-                return accum - Math.round(corrFactor * curr);
-            }
-
-            this._value = _.reduce([value], cback, Math.round(this._value * corrFactor)) / corrFactor;
-
-            return this;
-        },
-        multiply: function(value) {
-            function cback(accum, curr, currI, O) {
-                var corrFactor = _.correctionFactor(accum, curr);
-                return Math.round(accum * corrFactor) * Math.round(curr * corrFactor) / Math.round(corrFactor * corrFactor);
-            }
-
-            this._value = _.reduce([this._value, value], cback, 1);
-
-            return this;
-        },
-        divide: function(value) {
-            function cback(accum, curr, currI, O) {
-                var corrFactor = _.correctionFactor(accum, curr);
-                return Math.round(accum * corrFactor) / Math.round(curr * corrFactor);
-            }
-
-            this._value = _.reduce([this._value, value], cback);
-
-            return this;
-        },
-        difference: function(value) {
-            return Math.abs(numeral(this._value).subtract(value).value());
-        }
-    };
-
-    /************************************
-        Default Locale && Format
-    ************************************/
-
-    numeral.register('locale', 'en', {
-        delimiters: {
-            thousands: ',',
-            decimal: '.'
-        },
-        abbreviations: {
-            thousand: 'k',
-            million: 'm',
-            billion: 'b',
-            trillion: 't'
-        },
-        ordinal: function(number) {
-            var b = number % 10;
-            return (~~(number % 100 / 10) === 1) ? 'th' :
-                (b === 1) ? 'st' :
-                (b === 2) ? 'nd' :
-                (b === 3) ? 'rd' : 'th';
-        },
-        currency: {
-            symbol: '$'
-        }
-    });
-
-    
-
-(function() {
-        var decimal = {
-            base: 1000,
-            suffixes: ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
-        },
-        binary = {
-            base: 1024,
-            suffixes: ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
-        };
-
-    numeral.register('format', 'bytes', {
-        regexps: {
-            format: /([0\s]i?b)/,
-            unformat: new RegExp('(' + decimal.suffixes.concat(binary.suffixes).join('|') + ')')
-        },
-        format: function(value, format, roundingFunction) {
-            var output,
-                bytes = numeral._.includes(format, 'ib') ? binary : decimal,
-                suffix = numeral._.includes(format, ' b') || numeral._.includes(format, ' ib') ? ' ' : '',
-                power,
-                min,
-                max;
-
-            // check for space before
-            format = format.replace(/\s?i?b/, '');
-
-            for (power = 0; power <= bytes.suffixes.length; power++) {
-                min = Math.pow(bytes.base, power);
-                max = Math.pow(bytes.base, power + 1);
-
-                if (value === null || value === 0 || value >= min && value < max) {
-                    suffix += bytes.suffixes[power];
-
-                    if (min > 0) {
-                        value = value / min;
-                    }
-
-                    break;
-                }
-            }
-
-            output = numeral._.numberToFormat(value, format, roundingFunction);
-
-            return output + suffix;
-        },
-        unformat: function(string) {
-            var value = numeral._.stringToNumber(string),
-                power,
-                bytesMultiplier;
-
-            if (value) {
-                for (power = decimal.suffixes.length - 1; power >= 0; power--) {
-                    if (numeral._.includes(string, decimal.suffixes[power])) {
-                        bytesMultiplier = Math.pow(decimal.base, power);
-
-                        break;
-                    }
-
-                    if (numeral._.includes(string, binary.suffixes[power])) {
-                        bytesMultiplier = Math.pow(binary.base, power);
-
-                        break;
-                    }
-                }
-
-                value *= (bytesMultiplier || 1);
-            }
-
-            return value;
-        }
-    });
-})();
-
-
-(function() {
-        numeral.register('format', 'currency', {
-        regexps: {
-            format: /(\$)/
-        },
-        format: function(value, format, roundingFunction) {
-            var locale = numeral.locales[numeral.options.currentLocale],
-                symbols = {
-                    before: format.match(/^([\+|\-|\(|\s|\$]*)/)[0],
-                    after: format.match(/([\+|\-|\)|\s|\$]*)$/)[0]
-                },
-                output,
-                symbol,
-                i;
-
-            // strip format of spaces and $
-            format = format.replace(/\s?\$\s?/, '');
-
-            // format the number
-            output = numeral._.numberToFormat(value, format, roundingFunction);
-
-            // update the before and after based on value
-            if (value >= 0) {
-                symbols.before = symbols.before.replace(/[\-\(]/, '');
-                symbols.after = symbols.after.replace(/[\-\)]/, '');
-            } else if (value < 0 && (!numeral._.includes(symbols.before, '-') && !numeral._.includes(symbols.before, '('))) {
-                symbols.before = '-' + symbols.before;
-            }
-
-            // loop through each before symbol
-            for (i = 0; i < symbols.before.length; i++) {
-                symbol = symbols.before[i];
-
-                switch (symbol) {
-                    case '$':
-                        output = numeral._.insert(output, locale.currency.symbol, i);
-                        break;
-                    case ' ':
-                        output = numeral._.insert(output, ' ', i);
-                        break;
-                }
-            }
-
-            // loop through each after symbol
-            for (i = symbols.after.length - 1; i >= 0; i--) {
-                symbol = symbols.after[i];
-
-                switch (symbol) {
-                    case '$':
-                        output = i === symbols.after.length - 1 ? output + locale.currency.symbol : numeral._.insert(output, locale.currency.symbol, -(symbols.after.length - (1 + i)));
-                        break;
-                    case ' ':
-                        output = i === symbols.after.length - 1 ? output + ' ' : numeral._.insert(output, ' ', -(symbols.after.length - (1 + i)));
-                        break;
-                }
-            }
-
-
-            return output;
-        }
-    });
-})();
-
-
-(function() {
-        numeral.register('format', 'exponential', {
-        regexps: {
-            format: /(e\+|e-)/,
-            unformat: /(e\+|e-)/
-        },
-        format: function(value, format, roundingFunction) {
-            var output,
-                exponential = typeof value === 'number' && !numeral._.isNaN(value) ? value.toExponential() : '0e+0',
-                parts = exponential.split('e');
-
-            format = format.replace(/e[\+|\-]{1}0/, '');
-
-            output = numeral._.numberToFormat(Number(parts[0]), format, roundingFunction);
-
-            return output + 'e' + parts[1];
-        },
-        unformat: function(string) {
-            var parts = numeral._.includes(string, 'e+') ? string.split('e+') : string.split('e-'),
-                value = Number(parts[0]),
-                power = Number(parts[1]);
-
-            power = numeral._.includes(string, 'e-') ? power *= -1 : power;
-
-            function cback(accum, curr, currI, O) {
-                var corrFactor = numeral._.correctionFactor(accum, curr),
-                    num = (accum * corrFactor) * (curr * corrFactor) / (corrFactor * corrFactor);
-                return num;
-            }
-
-            return numeral._.reduce([value, Math.pow(10, power)], cback, 1);
-        }
-    });
-})();
-
-
-(function() {
-        numeral.register('format', 'ordinal', {
-        regexps: {
-            format: /(o)/
-        },
-        format: function(value, format, roundingFunction) {
-            var locale = numeral.locales[numeral.options.currentLocale],
-                output,
-                ordinal = numeral._.includes(format, ' o') ? ' ' : '';
-
-            // check for space before
-            format = format.replace(/\s?o/, '');
-
-            ordinal += locale.ordinal(value);
-
-            output = numeral._.numberToFormat(value, format, roundingFunction);
-
-            return output + ordinal;
-        }
-    });
-})();
-
-
-(function() {
-        numeral.register('format', 'percentage', {
-        regexps: {
-            format: /(%)/,
-            unformat: /(%)/
-        },
-        format: function(value, format, roundingFunction) {
-            var space = numeral._.includes(format, ' %') ? ' ' : '',
-                output;
-
-            value = value * 100;
-
-            // check for space before %
-            format = format.replace(/\s?\%/, '');
-
-            output = numeral._.numberToFormat(value, format, roundingFunction);
-
-            if (numeral._.includes(output, ')')) {
-                output = output.split('');
-
-                output.splice(-1, 0, space + '%');
-
-                output = output.join('');
-            } else {
-                output = output + space + '%';
-            }
-
-            return output;
-        },
-        unformat: function(string) {
-            return numeral._.stringToNumber(string) * 0.01;
-        }
-    });
-})();
-
-
-(function() {
-        numeral.register('format', 'time', {
-        regexps: {
-            format: /(:)/,
-            unformat: /(:)/
-        },
-        format: function(value, format, roundingFunction) {
-            var hours = Math.floor(value / 60 / 60),
-                minutes = Math.floor((value - (hours * 60 * 60)) / 60),
-                seconds = Math.round(value - (hours * 60 * 60) - (minutes * 60));
-
-            return hours + ':' + (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds);
-        },
-        unformat: function(string) {
-            var timeArray = string.split(':'),
-                seconds = 0;
-
-            // turn hours and minutes into seconds and add them all up
-            if (timeArray.length === 3) {
-                // hours
-                seconds = seconds + (Number(timeArray[0]) * 60 * 60);
-                // minutes
-                seconds = seconds + (Number(timeArray[1]) * 60);
-                // seconds
-                seconds = seconds + Number(timeArray[2]);
-            } else if (timeArray.length === 2) {
-                // minutes
-                seconds = seconds + (Number(timeArray[0]) * 60);
-                // seconds
-                seconds = seconds + Number(timeArray[1]);
-            }
-            return Number(seconds);
-        }
-    });
-})();
-
-return numeral;
-}));
