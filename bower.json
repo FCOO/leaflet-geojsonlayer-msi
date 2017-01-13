@@ -20,7 +20,7 @@
     "jquery": "latest",
     "moment": "latest",
     "latlng-format": "fcoo/latlng-format",
-    "leaflet-latlng-format": "fcoo/leaflet-latlng-format#latest",
+    "leaflet-latlng-format": "fcoo/leaflet-latlng-format#^0.5.0",
     "leaflet-popup-extensions": "fcoo/leaflet-popup-extensions#latest",
     "leaflet-zoom-modernizr": "fcoo/leaflet-zoom-modernizr#latest"
   },
