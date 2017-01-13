@@ -95,7 +95,7 @@
 
             //Positions
             for (i=0; i<positionList.length; i++ )
-                positionContent += (i ? '<br>' : '') + positionList[i].asFormat().join('&nbsp;&nbsp;&nbsp;');
+                positionContent += (i ? '<br>' : '') + positionList[i].format().join('&nbsp;&nbsp;&nbsp;');
             insertInContent( { 'points': positionContent });
             return content;
         }
