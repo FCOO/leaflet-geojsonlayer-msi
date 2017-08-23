@@ -45,7 +45,7 @@
   .msi-marker:hover {
     color: black;
     border-color: black;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
     z-index: 99999 !important; }
   .leaflet-zoom-7 .msi-marker {
     width: 10px;

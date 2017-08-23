@@ -3,7 +3,8 @@
 
 
 ## Description
-Leaflet control for Danish Maritime Safety Information notices. The notices are provided by the Danish Maritime Authority but this layer uses a proxy service provided by the Danish Defence Centre for Operational Oceanography.
+Leaflet control for Danish Maritime Safety Information notices. 
+The notices are provided by the Danish Maritime Authority at https://niord.dma.dk
 
 ## Installation
 ### bower
@@ -24,5 +25,5 @@ Copyright (c) 2015 [FCOO](https://github.com/FCOO)
 
 ## Contact information
 
-Jesper Larsen jla@fcoo.dk
+Niels Holt nho@fcoo.dk
 
