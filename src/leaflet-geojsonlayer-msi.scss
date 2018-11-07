@@ -1,5 +1,5 @@
 /***********************************************
-    leaflet-geojsonlayer-msi.scss, 
+    leaflet-geojsonlayer-msi.scss,
 
     (c) 2015, FCOO
 
@@ -7,8 +7,8 @@
     https://github.com/FCOO
 ************************************************/
 
-//BOURBON - http://bourbon.io/
-@import "../bower_components/bourbon/app/assets/stylesheets/bourbon";
+//BOURBON - http://bourbon.io/ - version 5
+@import "../bower_components/bourbon/core/bourbon";
 
 //MODERNIZR-MIXIN - https://github.com/danielguillan/modernizr-mixin
 @import "../bower_components/modernizr-mixin/stylesheets/modernizr";
@@ -67,16 +67,16 @@
     color      : $color;
     font-size  : 10px;
     font-family: Arial;
-    text-align : center;    
+    text-align : center;
 
-    &:hover {     
+    &:hover {
         color           : $color-hover;
         border-color    : $color-hover;
         background-color: rgba(255,255,255,0.7);
         z-index         : 99999 !important;
     }
 
-    
+
     //Style for zoom <= $zoom-break-min
     @include leaflet-zoom-size( 10 /*$max-size*/, $zoom-break-min /*$max-zoom*/);
 
@@ -99,7 +99,7 @@
 
         &:before { content: 'MSI'; }
     }
-    
+
     //Style for $zoom-break-min < zoom < $zoom-break-max
     .leaflet-zoom-#{$zoom-break-min + 1}-up.leaflet-zoom-#{$zoom-break-max - 1}-down & {
         width      : $size-min;
@@ -110,7 +110,7 @@
         font-size  : $size-min / 2;
         line-height: $size-min;
     }
-    
+
     //Style for zoom >= $zoom-break-max
     .leaflet-zoom-#{$zoom-break-max}-up & {
         width      : $size-max;
@@ -120,6 +120,6 @@
 
         font-size  : $size-max / 2;
         line-height: $size-max;
-    
+
     }
 }

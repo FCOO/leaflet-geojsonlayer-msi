@@ -13,7 +13,7 @@
     /********************************************
     getContent( contentArray, language )
     contentArray = [] of { lang:STRING, id:content }
-    Returns {id#1: content, id#2: content} 
+    Returns {id#1: content, id#2: content}
 
     ********************************************/
     function getContent( contentArray, language ){
@@ -21,13 +21,13 @@
         language = language || 'da';
         $.each( contentArray, function( index, langContent ){
             if (langContent.lang == language)
-                $.each( langContent, function( id, value ){                              
+                $.each( langContent, function( id, value ){
                     result[id] = value;
                 });
         });
         return result;
     }
-    
+
     function getPart( message, type ){
         var parts = message ? message.parts : null,
             result = null;
@@ -38,10 +38,10 @@
                     return false;
                 }
             });
-        return result;                
+        return result;
     }
 
-    function getAreaList( message, language ){ 
+    function getAreaList( message, language ){
         function getAreaName( object, language ){
             return getContent( object.descs || [], language ).name;
         }
@@ -61,9 +61,9 @@
 
         return result;
     }
-        
-    
-    
+
+
+
     var msiDivIcon = L.divIcon({className: 'msi-marker', iconSize:null, iconAnchor:null});
 
     function dateAsHTML( date ){
@@ -80,7 +80,7 @@
         },
 
         //***************************************
-        //updatePopup 
+        //updatePopup
         //***************************************
         updatePopup: function ( /*popup*/) {
             var options      = this.geoJSON_MSI.options,
@@ -98,7 +98,7 @@
                     result[id] = text[id][language];
                 return result;
             }
-            
+
             //insertInContent
             function insertInContent( text ){
                 for (var id in text)
@@ -144,14 +144,13 @@
         options: {
             language: 'en',
             timezone: 'local',
-            protocol: 'https:', 
+            protocol: 'https:',
 //            baseurl : '//niord.dma.dk/rest/public/v1/messages?dateFormat=UNIX_EPOCH&domain=niord-nw&domain=niord-fe',//MSI AND F_WARN
             baseurl : '//niord.dma.dk/rest/public/v1/messages?dateFormat=UNIX_EPOCH&domain=niord-nw',//Only MSI
 
             coordsToLatLng: function (coords) { // (Array[, Boolean]) -> LatLng
                 return new L.LatLng(coords[1], coords[0], coords[2]);
             },
-
 
 
             //***************************************
@@ -162,7 +161,7 @@
                     title = getContent( feature.message.descs, feature.msiOptions.language ).title;
 
                 result.on('add', function(){
-                    this._icon.title = title; 
+                    this._icon.title = title;
                 }, result);
                 return result;
             },
@@ -223,10 +222,9 @@
             this.jqxhr = $.getJSON(this.options.url);
 
 
-            this.jqxhr.done(function (data) { 
-
+            this.jqxhr.done(function (data) {
                 var jsonData = {
-                          "type"    : "FeatureCollection", 
+                          "type"    : "FeatureCollection",
                           "features": []
                     };
                 $.each( data, function( index, message ){
@@ -247,9 +245,9 @@
 
                                 centerPointFeature = {
                                     type    : "Feature",
-                                    geometry: { 
+                                    geometry: {
                                         type       : "Point",
-                                        coordinates: centerCoordinates 
+                                        coordinates: centerCoordinates
                                     },
                                     message   : message,
                                     msiOptions: _this.options
@@ -274,7 +272,7 @@
             // Set method to perform on each feature
             var header = this.options.text['header'][this.options.language];
 
-            this.options.onEachFeature = function (feature, layer) { 
+            this.options.onEachFeature = function (feature, layer) {
                 var msiFeature = new MsiFeature( feature, _this );
 
                 layer.bindPopup('', {
@@ -291,7 +289,7 @@
         //***************************************
         //onAdd: function (map)
         //***************************************
-        onAdd: function (map) { 
+        onAdd: function (map) {
             var _this = this;
             this.jqxhr.done(function (/*data*/) {
                 L.GeoJSON.prototype.onAdd.call(_this, map);
